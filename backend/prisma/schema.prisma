@@ -3,33 +3,18 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 // ------------------------------------------------------
-// Enums (Sabit Tipler)
-// ------------------------------------------------------
-
-enum Role {
-  STUDENT   // Öğrenci (Mobil)
-  MERCHANT  // Esnaf / İşletme (PWA & Desktop Agent)
-  ADMIN     // Belediye Yetkilisi (Admin Dashboard)
-}
-
-enum DiscountRequestStatus {
-  PENDING   // Beklemede
-  APPROVED  // Onaylandı
-  REJECTED  // Reddedildi
-}
-
-// ------------------------------------------------------
 // Kullanıcı Modeli (Ortak Auth Tablosu)
+// Roles: STUDENT | MERCHANT | ADMIN
 // ------------------------------------------------------
 
 model User {
   id            String    @id @default(uuid())
-  role          Role      @default(STUDENT)
+  role          String    @default("STUDENT")
   email         String?   @unique
   passwordHash  String?   // Esnaf ve Admin için şifre
   phoneNumber   String?   @unique
@@ -97,20 +82,21 @@ model MerchantProfile {
 
 // ------------------------------------------------------
 // İndirim Oranı Güncelleme Talepleri (Admin Onaylı)
+// Statuses: PENDING | APPROVED | REJECTED
 // ------------------------------------------------------
 
 model DiscountRequest {
-  id                String                @id @default(uuid())
+  id                String          @id @default(uuid())
   merchantId        String
-  merchant          MerchantProfile       @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  merchant          MerchantProfile @relation(fields: [merchantId], references: [id], onDelete: Cascade)
 
-  currentRate       Float                 // Talep anındaki mevcut oran
-  requestedRate     Float                 // İstenen yeni indirim oranı
-  status            DiscountRequestStatus @default(PENDING)
-  adminNote         String?               // Reddedildiyse açıklama notu
+  currentRate       Float           // Talep anındaki mevcut oran
+  requestedRate     Float           // İstenen yeni indirim oranı
+  status            String          @default("PENDING")
+  adminNote         String?         // Reddedildiyse açıklama notu
 
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   @@map("discount_requests")
 }

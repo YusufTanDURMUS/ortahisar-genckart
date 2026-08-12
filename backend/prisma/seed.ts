@@ -1,28 +1,28 @@
-import { PrismaClient, Role, DiscountRequestStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Ortahisar Gençkart Yeni Şema Veritabanı Tohumlama Başlatılıyor...');
+  console.log('🌱 Ortahisar Gençkart SQLite Veritabanı Tohumlama Başlatılıyor...');
 
   // 1. Admin Kullanıcı
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@ortahisar.bel.tr' },
     update: {},
     create: {
-      role: Role.ADMIN,
+      role: 'ADMIN',
       email: 'admin@ortahisar.bel.tr',
-      passwordHash: '$2b$10$AdminSuperSecretHashPass', // Admin Hash
+      passwordHash: '$2b$10$AdminSuperSecretHashPass',
       phoneNumber: '04620000000',
     },
   });
 
-  // 2. Örnek Öğrenci Kullanıcıları
+  // 2. Örnek Öğrenci Kullanıcısı
   const studentUser1 = await prisma.user.upsert({
     where: { email: 'yusuf@ogr.ktu.edu.tr' },
     update: {},
     create: {
-      role: Role.STUDENT,
+      role: 'STUDENT',
       email: 'yusuf@ogr.ktu.edu.tr',
       phoneNumber: '05321112233',
     },
@@ -80,7 +80,7 @@ async function main() {
       where: { email: item.email },
       update: {},
       create: {
-        role: Role.MERCHANT,
+        role: 'MERCHANT',
         email: item.email,
         passwordHash: '$2b$10$MerchantSecretHashPass',
         phoneNumber: item.phoneNumber,
@@ -106,7 +106,7 @@ async function main() {
         merchantId: merchantProfile.id,
         currentRate: item.defaultDiscountRate,
         requestedRate: item.defaultDiscountRate + 5.0,
-        status: DiscountRequestStatus.PENDING,
+        status: 'PENDING',
         adminNote: 'Öğrencilere daha yüksek indirim sağlama talebi.',
       },
     });
@@ -126,7 +126,7 @@ async function main() {
     });
   }
 
-  console.log('✅ Yeni Ortahisar Gençkart Şeması Veritabanı Tohumlama Tamamlandı!');
+  console.log('✅ Ortahisar Gençkart SQLite Veritabanı Tohumlama Tamamlandı!');
 }
 
 main()
