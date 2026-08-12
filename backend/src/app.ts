@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
+import discountRoutes from './routes/discount.routes';
 import esnafRoutes from './routes/esnaf.routes';
 import qrRoutes from './routes/qr.routes';
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // API Rotaları
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/discount', discountRoutes);
 app.use('/api/esnaf', esnafRoutes);
 app.use('/api/qr', qrRoutes);
 
