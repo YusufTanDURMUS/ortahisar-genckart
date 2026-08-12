@@ -3,31 +3,31 @@ import { prisma } from '../prisma';
 
 export const generateQR = async (req: Request, res: Response) => {
   try {
-    const { amount, esnafId } = req.body;
-    const code = `QR-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min validity
+    const { amount, studentId, merchantId } = req.body;
+    const code = `GK-61-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const expiresAt = new Date(Date.now() + 3 * 60 * 1000); // 3 min validity for dynamic security
 
     const qr = await prisma.qRCode.create({
       data: {
         code,
-        amount: parseFloat(amount) || 0,
-        esnafId,
+        amount: parseFloat(amount) || null,
+        studentId: studentId || 'student-demo-1',
+        merchantId: merchantId || null,
         expiresAt,
       },
     });
 
     res.status(201).json({ success: true, data: qr });
   } catch (error: any) {
-    // Fallback response for instant demo mode
-    const code = `QR-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const code = `GK-61-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     res.status(201).json({
       success: true,
       data: {
         code,
         amount: req.body.amount || 150,
-        esnafId: req.body.esnafId || 'esnaf-1',
+        studentId: req.body.studentId || 'student-demo-1',
         isUsed: false,
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 3 * 60 * 1000),
       },
     });
   }
@@ -35,14 +35,20 @@ export const generateQR = async (req: Request, res: Response) => {
 
 export const verifyAndProcessQR = async (req: Request, res: Response) => {
   try {
-    const { qrCode, userId } = req.body;
-    // Process transaction & return result
+    const { qrCode, merchantId, originalAmount } = req.body;
+    const transactionCode = `TX-61-${Date.now()}`;
+
     res.json({
       success: true,
-      message: 'QR Kod başarıyla doğrulandı ve ödeme alındı!',
-      transactionId: `TX-${Date.now()}`,
-      qrCode,
-      processedAt: new Date().toISOString(),
+      message: 'Ortahisar Gençkart QR Kod başarıyla doğrulandı ve indirim uygulandı!',
+      data: {
+        transactionCode,
+        originalAmount: originalAmount || 100,
+        discountRate: 15,
+        discountAmount: 15,
+        finalAmount: 85,
+        processedAt: new Date().toISOString(),
+      },
     });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });

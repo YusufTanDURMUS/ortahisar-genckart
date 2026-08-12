@@ -1,7 +1,7 @@
 {
-  "name": "esnaf-gis-backend",
+  "name": "ortahisar-genckart-backend",
   "version": "1.0.0",
-  "description": "Node.js (Express + TypeScript) + Prisma ORM Backend API",
+  "description": "Ortahisar Gençkart Node.js (Express + TypeScript) + Prisma ORM Backend API",
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
@@ -9,7 +9,11 @@
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "ts-node-dev --transpile-only prisma/seed.ts",
     "prisma:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "ts-node-dev --transpile-only prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

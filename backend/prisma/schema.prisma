@@ -1,4 +1,4 @@
-// Prisma Schema for Esnaf & GIS System
+// Ortahisar Gençkart & Esnaf İndirim Sistemi - Prisma Veritabanı Şeması
 
 generator client {
   provider = "prisma-client-js"
@@ -9,78 +9,146 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  ESNAF
-  CUSTOMER
+enum UserRole {
+  STUDENT          // Öğrenci Kullanıcı (Gençkart Sahibi)
+  MERCHANT         // Üye Esnaf Kullanıcı
+  ADMIN            // Belediye Admin Yetkilisi
+}
+
+enum StudentStatus {
+  ACTIVE           // Aktif Öğrenci (İndirimden Yararlanabilir)
+  INACTIVE         // Pasif / Mezun
+  SUSPENDED        // Askıya Alınmış
+}
+
+enum RequestStatus {
+  PENDING          // Bekleyen Talep
+  APPROVED         // Onaylanan Talep
+  REJECTED         // Reddedilen Talep
 }
 
 enum TransactionStatus {
-  PENDING
-  COMPLETED
-  CANCELLED
+  COMPLETED        // Başarıyla Tamamlandı
+  FAILED           // Başarısız
+  CANCELLED        // İptal Edildi
 }
 
+// 1. Kullanıcı Modeli (Öğrenci, Esnaf Yetkilisi, Belediye Admin)
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
-  role      Role     @default(CUSTOMER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String        @id @default(uuid())
+  tckn          String        @unique // 11 Haneli TC Kimlik No
+  name          String        // Ad
+  surname       String        // Soyad
+  email         String        @unique
+  phone         String?
+  birthYear     Int?          // Doğum Yılı (e-Devlet doğrulaması için)
+  role          UserRole      @default(STUDENT)
+  studentStatus StudentStatus @default(ACTIVE)
 
-  esnaf        Esnaf?
-  transactions Transaction[]
+  // Öğrenciye Özel Detaylar (e-Devlet Entegrasyon Verileri)
+  university    String?       // Örn: Karadeniz Teknik Üniversitesi (KTÜ)
+  department    String?       // Örn: Bilgisayar Mühendisliği
+  studentNumber String?       // Öğrenci Numarası
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // İlişkiler
+  merchant            Merchant?
+  studentTransactions Transaction[] @relation("StudentTransactions")
+  qrCodes             QRCode[]
 }
 
-model Esnaf {
-  id           String   @id @default(uuid())
-  shopName     String
-  taxNumber    String   @unique
-  address      String
-  latitude     Float
-  longitude    Float
-  phone        String
-  category     String
-  isActive     Boolean  @default(true)
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+// 2. Üye Esnaf Modeli
+model Merchant {
+  id                  String            @id @default(uuid())
+  shopName            String            // İşyeri Ticari Adı
+  ownerName           String            // İşyeri Sahibi / Yetkilisi
+  taxNumber           String            @unique // Vergi No veya TCKN
+  taxOffice          String?           // Vergi Dairesi
+  category            String            // Kategori (Restoran, Kafe, Kırtasiye, vb.)
+  phone               String
+  address             String
+  latitude            Float?
+  longitude           Float?
+  discountRate        Float             @default(10.0) // Güncel İndirim Oranı (%10, %15 vb.)
+  isActive            Boolean           @default(true)
 
-  transactions Transaction[]
-  qrCodes      QRCode[]
+  userId              String            @unique
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  // İlişkiler
+  discountRequests    DiscountRequest[]
+  transactions        Transaction[]
+  qrCodes             QRCode[]
 }
 
-model QRCode {
-  id        String   @id @default(uuid())
-  code      String   @unique
-  amount    Float?
-  isUsed    Boolean  @default(false)
-  expiresAt DateTime
-  esnafId   String
-  esnaf     Esnaf    @relation(fields: [esnafId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+// 3. Esnaf İndirim Oranı Değişiklik Talebi (Belediye Onayı İçin)
+model DiscountRequest {
+  id            String        @id @default(uuid())
+  merchantId    String
+  merchant      Merchant      @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  currentRate   Float         // Talep anındaki indirim oranı (%)
+  requestedRate Float         // Talep edilen yeni indirim oranı (%)
+  reason        String?       // Talep gerekçesi
+  status        RequestStatus @default(PENDING)
+  adminNote     String?       // Belediye görevlisinin notu veya ret nedeni
+  processedBy   String?       // İşlemi yapan admin kullanıcı ID'si
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
+// 4. Gençkart İndirimli İşlem Geçmişi (Transaction)
 model Transaction {
-  id          String            @id @default(uuid())
-  amount      Float
-  status      TransactionStatus @default(COMPLETED)
-  qrCode      String?
-  userId      String
-  user        User              @relation(fields: [userId], references: [id])
-  esnafId     String
-  esnaf       Esnaf             @relation(fields: [esnafId], references: [id])
-  createdAt   DateTime          @default(now())
+  id              String            @id @default(uuid())
+  transactionCode String            @unique // Örn: TX-61-20260812-984214
+  originalAmount  Float             // İndirimsiz Ham Tutar (₺)
+  discountRate    Float             // Uygulanan İndirim Oranı (%)
+  discountAmount  Float             // Yapılan İndirim Tutarı (₺)
+  finalAmount     Float             // Öğrencinin Ödediği Net Tutar (₺)
+  status          TransactionStatus @default(COMPLETED)
+  qrCode          String?           // Doğrulanan QR Kod String'i
+  deviceSource    String?           // İşlem Kaynağı: MOBILE_APP | WEB_PWA | WINDOWS_SENDKEYS
+
+  studentId       String
+  student         User              @relation("StudentTransactions", fields: [studentId], references: [id])
+
+  merchantId      String
+  merchant        Merchant          @relation(fields: [merchantId], references: [id])
+
+  createdAt       DateTime          @default(now())
 }
 
-model Location {
+// 5. Dinamik Güvenlikli QR Kod Modeli (Ekran Görüntüsü Sahteciliğini Önleyen)
+model QRCode {
   id          String   @id @default(uuid())
-  name        String
-  category    String
-  latitude    Float
-  longitude   Float
-  description String?
+  code        String   @unique // Örn: GK-61-UUID-TIMESTAMP
+  amount      Float?   // Varsa sabit işlem tutarı
+  isUsed      Boolean  @default(false)
+  expiresAt   DateTime // Geri sayım son kullanma tarihi (Genelde 60-180 saniye)
+
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  merchantId  String?
+  merchant    Merchant? @relation(fields: [merchantId], references: [id], onDelete: SetNull)
+
   createdAt   DateTime @default(now())
+}
+
+// 6. Mock e-Devlet Doğrulama Logu
+model EDevletMockLog {
+  id          String   @id @default(uuid())
+  tckn        String
+  name        String
+  surname     String
+  birthYear   Int
+  isVerified  Boolean
+  university  String?
+  verifiedAt  DateTime @default(now())
 }
