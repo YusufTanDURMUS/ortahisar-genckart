@@ -1,53 +1,27 @@
 version: '3.8'
 
 services:
-  # PostgreSQL + PostGIS (Prisma ORM ile Tam Uyumlu Veritabanı)
   postgres:
-    image: postgis/postgis:16-3.4
-    container_name: gis_postgres
+    image: postgres:16-alpine
+    container_name: ortahisar_genckart_db
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
-      POSTGRES_DB: ${DB_NAME:-gis_db}
+      POSTGRES_USER: genckart_user
+      POSTGRES_PASSWORD: genckart_password
+      POSTGRES_DB: ortahisar_genckart_db
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
-  # Redis (Önbellekleme ve Anlık Bildirimler)
-  redis:
-    image: redis:7-alpine
-    container_name: gis_redis
+  adminer:
+    image: adminer:latest
+    container_name: ortahisar_genckart_adminer
     restart: always
     ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  # PgAdmin (Veritabanı Görsel Yönetim Arayüzü)
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: gis_pgadmin
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@gis.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
-    ports:
-      - "${PGADMIN_PORT:-5050}:80"
+      - "8080:8080"
     depends_on:
       - postgres
 
 volumes:
   postgres_data:
-  redis_data:
