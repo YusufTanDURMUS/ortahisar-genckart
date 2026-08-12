@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { MockEDevletAuthAdapter } from '../adapters/mockEDevletAuth.adapter';
-import { prisma } from '../prisma';
+import { AuthService } from '../services/auth.service';
 
 export const verifyEDevletStudent = async (req: Request, res: Response) => {
   try {
@@ -9,67 +8,60 @@ export const verifyEDevletStudent = async (req: Request, res: Response) => {
     if (!tcKn || !firstName || !lastName || !birthYear) {
       return res.status(400).json({
         success: false,
-        message: 'Eksik bilgi: TCKN, ad, soyad ve doğum yılı zorunludur.',
+        message: 'Eksik parametre: TC Kimlik No, ad, soyad ve doğum yılı zorunludur.',
       });
     }
 
-    const authResult = await MockEDevletAuthAdapter.verifyStudentIdentity({
+    const authData = await AuthService.verifyAndRegisterStudent({
       tcKn,
       firstName,
       lastName,
       birthYear: Number(birthYear),
     });
 
-    if (!authResult.isVerified || !authResult.studentDetails) {
-      return res.status(401).json({
-        success: false,
-        message: authResult.message || 'e-Devlet Nüfus & YÖK doğrulaması başarısız.',
-      });
-    }
-
-    const details = authResult.studentDetails;
-
-    // Create or find User & StudentProfile
-    let studentProfile = await prisma.studentProfile.findUnique({
-      where: { tcKn: details.tcKn },
-      include: { user: true },
-    });
-
-    if (!studentProfile) {
-      const user = await prisma.user.create({
-        data: {
-          role: 'STUDENT',
-          email: `${details.tcKn}@genckart.ortahisar.bel.tr`,
-          phoneNumber: req.body.phoneNumber || null,
-        },
-      });
-
-      studentProfile = await prisma.studentProfile.create({
-        data: {
-          userId: user.id,
-          tcKn: details.tcKn,
-          firstName: details.firstName,
-          lastName: details.lastName,
-          birthYear: details.birthYear,
-          schoolName: details.schoolName,
-          district: details.district,
-          isEligible: details.isEligible,
-          edevletRefCode: authResult.refCode,
-        },
-        include: { user: true },
-      });
-    }
-
-    res.json({
+    return res.status(200).json({
       success: true,
-      message: authResult.message,
-      data: studentProfile,
+      message: 'e-Devlet doğrulama ve giriş işlemi başarılı.',
+      data: authData,
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(400).json({
       success: false,
-      message: 'e-Devlet doğrulama sunucu hatası',
-      error: error.message,
+      message: error.message || 'Giriş işlemi başarısız.',
     });
   }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Eksik parametre: E-posta ve şifre zorunludur.',
+      });
+    }
+
+    const authData = await AuthService.loginWithPassword(email, password);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Kullanıcı girişi başarılı.',
+      data: authData,
+    });
+  } catch (error: any) {
+    return res.status(401).json({
+      success: false,
+      message: error.message || 'Kimlik doğrulama başarısız.',
+    });
+  }
+};
+
+export const getMe = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  return res.json({
+    success: true,
+    data: user || null,
+  });
 };

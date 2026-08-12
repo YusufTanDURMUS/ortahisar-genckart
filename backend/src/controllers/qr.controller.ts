@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma } from '../utils/prisma';
 
 export const generateQR = async (req: Request, res: Response) => {
   try {
@@ -50,7 +50,6 @@ export const verifyAndProcessQR = async (req: Request, res: Response) => {
       data: transaction,
     });
   } catch (error: any) {
-    // Fallback response for offline demo
     const origAmt = Number(req.body.originalAmount) || 100.0;
     const discountRate = 15.0;
     const discountedAmt = origAmt * 0.85;

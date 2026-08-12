@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma } from '../utils/prisma';
 
 export const getEsnafList = async (req: Request, res: Response) => {
   try {

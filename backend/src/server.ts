@@ -1,11 +1,10 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import app from './app';
+import { config } from './config/env';
 
-const PORT = process.env.PORT || 3000;
+const PORT = config.port;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Node.js Express + Prisma API sunucusu http://localhost:${PORT} adresinde çalışıyor`);
-  console.log(`📊 Health Check: http://localhost:${PORT}/api/health`);
+  console.log(`🚀 Ortahisar Gençkart API Sunucusu http://localhost:${PORT} adresinde çalışıyor`);
+  console.log(`🔒 AUTH_MODE: ${config.authMode}`);
+  console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
 });
