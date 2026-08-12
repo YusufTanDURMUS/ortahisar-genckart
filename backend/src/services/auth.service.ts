@@ -13,9 +13,14 @@ export class AuthService {
       throw new Error(verification.message || 'Genç Kart sisteminde kaydınız bulunamadı.');
     }
 
-    // 2. Kendi DB'mizde kullanıcı var mı kontrol et, yoksa oluştur (Sync)
+    // 2. Kendi DB'mizde kullanıcı var mı kontrol et (TCKN veya Telefon ile)
     let user = await prisma.user.findFirst({
-      where: { studentProfile: { tcKn } },
+      where: {
+        OR: [
+          { studentProfile: { tcKn } },
+          { phoneNumber }
+        ]
+      },
       include: { studentProfile: true }
     });
 
@@ -36,6 +41,18 @@ export class AuthService {
         },
         include: { studentProfile: true }
       });
+    } else if (!user.studentProfile) {
+      const profile = await prisma.studentProfile.create({
+        data: {
+          userId: user.id,
+          belediyeStudentId: verification.belediyeStudentId!,
+          tcKn,
+          firstName: verification.firstName!,
+          lastName: verification.lastName!,
+          isEligible: true
+        }
+      });
+      user.studentProfile = profile;
     }
 
     // 3. Mobil Uygulama için JWT Token üret
@@ -47,7 +64,7 @@ export class AuthService {
         belediyeStudentId: user.studentProfile?.belediyeStudentId
       },
       process.env.JWT_SECRET || 'fallback_secret',
-      { expiresIn: '30d' } // Mobilde sık sık giriş istenmemesi için 30 gün
+      { expiresIn: '30d' }
     );
 
     return {
