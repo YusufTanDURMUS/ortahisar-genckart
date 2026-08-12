@@ -17,3 +17,28 @@ export const studentLoginController = async (req: Request, res: Response) => {
     return res.status(401).json({ status: 'FAILED', message: error.message });
   }
 };
+
+export const merchantLoginController = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ status: 'ERROR', message: 'E-posta ve şifre zorunludur.' });
+    }
+
+    const result = await AuthService.loginWithPassword(email, password);
+    return res.status(200).json({
+      status: 'SUCCESS',
+      message: 'Giriş başarılı.',
+      data: {
+        token: result.token,
+        merchant: {
+          businessName: result.user.merchantProfile?.businessName || 'Akbuz Sahaf & Kitabevi',
+          category: result.user.merchantProfile?.category || 'Kitap & Kırtasiye',
+        },
+      },
+    });
+  } catch (error: any) {
+    return res.status(401).json({ status: 'FAILED', message: error.message || 'Giriş başarısız.' });
+  }
+};

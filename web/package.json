@@ -1,5 +1,5 @@
 {
-  "name": "esnaf-gis-web",
+  "name": "ortahisar-genckart-web",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -9,10 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.454.0",
     "next": "14.2.15",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
     "@types/node": "^20.17.0",
