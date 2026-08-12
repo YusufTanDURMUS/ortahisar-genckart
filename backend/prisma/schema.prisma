@@ -1,0 +1,86 @@
+// Prisma Schema for Esnaf & GIS System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ESNAF
+  CUSTOMER
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  esnaf        Esnaf?
+  transactions Transaction[]
+}
+
+model Esnaf {
+  id           String   @id @default(uuid())
+  shopName     String
+  taxNumber    String   @unique
+  address      String
+  latitude     Float
+  longitude    Float
+  phone        String
+  category     String
+  isActive     Boolean  @default(true)
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  transactions Transaction[]
+  qrCodes      QRCode[]
+}
+
+model QRCode {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  amount    Float?
+  isUsed    Boolean  @default(false)
+  expiresAt DateTime
+  esnafId   String
+  esnaf     Esnaf    @relation(fields: [esnafId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Transaction {
+  id          String            @id @default(uuid())
+  amount      Float
+  status      TransactionStatus @default(COMPLETED)
+  qrCode      String?
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+  esnafId     String
+  esnaf       Esnaf             @relation(fields: [esnafId], references: [id])
+  createdAt   DateTime          @default(now())
+}
+
+model Location {
+  id          String   @id @default(uuid())
+  name        String
+  category    String
+  latitude    Float
+  longitude   Float
+  description String?
+  createdAt   DateTime @default(now())
+}
