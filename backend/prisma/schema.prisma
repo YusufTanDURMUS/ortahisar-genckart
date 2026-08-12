@@ -38,11 +38,12 @@ model StudentProfile {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   tcKn              String   @unique // TC Kimlik No
+  belediyeStudentId String?  // Belediyenin sistemindeki ID (Örn: BEL-STUDENT-1110)
   firstName         String
   lastName          String
-  birthYear         Int
-  schoolName        String?  // Okuduğu Okul
-  district          String   // İkamet / Okul İlçesi (Ortahisar şartı için)
+  birthYear         Int      @default(2002)
+  schoolName        String?  @default("Karadeniz Teknik Üniversitesi (KTÜ)") // Okuduğu Okul
+  district          String   @default("Ortahisar") // İkamet / Okul İlçesi
   isEligible        Boolean  @default(true) // Aktif öğrencilik/şart durumu
   edevletRefCode    String?  // e-Devlet doğrulama referans kodu
 

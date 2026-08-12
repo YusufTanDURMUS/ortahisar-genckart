@@ -1,27 +1,12 @@
-export interface EDevletVerifyInput {
-  tcKn: string;
-  firstName: string;
-  lastName: string;
-  birthYear: number;
-}
-
-export interface EDevletStudentDetails {
-  tcKn: string;
-  firstName: string;
-  lastName: string;
-  schoolName: string;
-  district: string;
-  birthYear: number;
+export interface StudentAuthCheckResult {
   isEligible: boolean;
-}
-
-export interface EDevletVerifyResult {
-  isVerified: boolean;
-  message: string;
-  refCode?: string;
-  studentDetails?: EDevletStudentDetails;
+  belediyeStudentId?: string;
+  tcKn: string;
+  firstName?: string;
+  lastName?: string;
+  message?: string;
 }
 
 export interface IEdevletAuthAdapter {
-  verifyStudentIdentity(input: EDevletVerifyInput): Promise<EDevletVerifyResult>;
+  verifyStudentEligibility(tcKn: string, birthYear: number): Promise<StudentAuthCheckResult>;
 }

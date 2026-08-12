@@ -1,121 +1,64 @@
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 import { prisma } from '../utils/prisma';
-import { config } from '../config/env';
-import { getEdevletAuthAdapter, EDevletVerifyInput } from '../adapters';
+import { getEdevletAdapter } from '../adapters';
 
 export class AuthService {
-  /**
-   * e-Devlet ile Öğrenci Kimlik Doğrulama & Kayıt / Giriş İşlemi
-   */
-  public static async verifyAndRegisterStudent(input: EDevletVerifyInput) {
-    const adapter = getEdevletAuthAdapter();
-    const result = await adapter.verifyStudentIdentity(input);
+  private authAdapter = getEdevletAdapter();
 
-    if (!result.isVerified || !result.studentDetails) {
-      throw new Error(result.message || 'e-Devlet Nüfus & YÖK doğrulaması başarısız.');
+  async loginOrRegisterStudent(tcKn: string, birthYear: number, phoneNumber: string) {
+    // 1. Adapter üzerinden e-Devlet/Belediye sorgusu yap
+    const verification = await this.authAdapter.verifyStudentEligibility(tcKn, birthYear);
+
+    if (!verification.isEligible) {
+      throw new Error(verification.message || 'Genç Kart sisteminde kaydınız bulunamadı.');
     }
 
-    const details = result.studentDetails;
-
-    // Veritabanında öğrenciyi bul veya oluştur
-    let studentProfile = await prisma.studentProfile.findUnique({
-      where: { tcKn: details.tcKn },
-      include: { user: true },
+    // 2. Kendi DB'mizde kullanıcı var mı kontrol et, yoksa oluştur (Sync)
+    let user = await prisma.user.findFirst({
+      where: { studentProfile: { tcKn } },
+      include: { studentProfile: true }
     });
 
-    if (!studentProfile) {
-      const user = await prisma.user.create({
+    if (!user) {
+      user = await prisma.user.create({
         data: {
           role: 'STUDENT',
-          email: `${details.tcKn}@genckart.ortahisar.bel.tr`,
+          phoneNumber,
+          studentProfile: {
+            create: {
+              belediyeStudentId: verification.belediyeStudentId!,
+              tcKn,
+              firstName: verification.firstName!,
+              lastName: verification.lastName!,
+              isEligible: true
+            }
+          }
         },
-      });
-
-      studentProfile = await prisma.studentProfile.create({
-        data: {
-          userId: user.id,
-          tcKn: details.tcKn,
-          firstName: details.firstName,
-          lastName: details.lastName,
-          birthYear: details.birthYear,
-          schoolName: details.schoolName,
-          district: details.district,
-          isEligible: details.isEligible,
-          edevletRefCode: result.refCode,
-        },
-        include: { user: true },
+        include: { studentProfile: true }
       });
     }
 
-    // JWT Token Üret
-    const token = this.generateJwtToken({
-      id: studentProfile.user.id,
-      role: 'STUDENT',
-      studentProfileId: studentProfile.id,
-      tcKn: studentProfile.tcKn,
-    });
-
-    return {
-      token,
-      user: {
-        id: studentProfile.user.id,
-        role: 'STUDENT',
-        tcKn: studentProfile.tcKn,
-        firstName: studentProfile.firstName,
-        lastName: studentProfile.lastName,
-        schoolName: studentProfile.schoolName,
-        district: studentProfile.district,
-        isEligible: studentProfile.isEligible,
+    // 3. Mobil Uygulama için JWT Token üret
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        role: user.role,
+        studentProfileId: user.studentProfile?.id,
+        belediyeStudentId: user.studentProfile?.belediyeStudentId
       },
-    };
-  }
-
-  /**
-   * Esnaf veya Belediye Admin Girişi (Email + Password)
-   */
-  public static async loginWithPassword(email: string, passwordHash: string) {
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: { merchantProfile: true, studentProfile: true },
-    });
-
-    if (!user || !user.passwordHash) {
-      throw new Error('E-posta adresi veya şifre hatalı.');
-    }
-
-    const isMatch = await bcrypt.compare(passwordHash, user.passwordHash).catch(() => {
-      // hash kıyaslama fallback
-      return passwordHash === user.passwordHash;
-    });
-
-    if (!isMatch) {
-      throw new Error('E-posta adresi veya şifre hatalı.');
-    }
-
-    const token = this.generateJwtToken({
-      id: user.id,
-      role: user.role,
-      merchantProfileId: user.merchantProfile?.id,
-    });
+      process.env.JWT_SECRET || 'fallback_secret',
+      { expiresIn: '30d' } // Mobilde sık sık giriş istenmemesi için 30 gün
+    );
 
     return {
       token,
       user: {
         id: user.id,
-        email: user.email,
-        role: user.role,
-        merchantProfile: user.merchantProfile,
-      },
+        firstName: user.studentProfile?.firstName,
+        lastName: user.studentProfile?.lastName,
+        tcKn: user.studentProfile?.tcKn,
+        isEligible: user.studentProfile?.isEligible
+      }
     };
-  }
-
-  /**
-   * JWT İmzala
-   */
-  public static generateJwtToken(payload: object): string {
-    return jwt.sign(payload, config.jwtSecret, {
-      expiresIn: config.jwtExpiresIn as any,
-    });
   }
 }

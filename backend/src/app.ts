@@ -1,29 +1,24 @@
-import express, { Express, Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
-import { config } from './config/env';
+import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import esnafRoutes from './routes/esnaf.routes';
 import qrRoutes from './routes/qr.routes';
 
-const app: Express = express();
+dotenv.config();
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Health Check
-app.get('/api/health', (req: Request, res: Response) => {
-  res.json({
-    status: 'online',
-    timestamp: new Date().toISOString(),
-    service: 'Ortahisar Gençkart Modüler Express + Prisma API',
-    authMode: config.authMode,
-    environment: config.nodeEnv,
-  });
-});
-
-// API Routes
-app.use('/api/auth', authRoutes);
+// API Rotaları
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/esnaf', esnafRoutes);
 app.use('/api/qr', qrRoutes);
+
+// Health Check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', authMode: process.env.AUTH_MODE || 'MOCK' });
+});
 
 export default app;

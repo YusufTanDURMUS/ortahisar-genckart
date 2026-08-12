@@ -1,43 +1,31 @@
-import {
-  IEdevletAuthAdapter,
-  EDevletVerifyInput,
-  EDevletVerifyResult,
-} from './IEdevletAuthAdapter';
+import axios from 'axios';
+import { IEdevletAuthAdapter, StudentAuthCheckResult } from './IEdevletAuthAdapter';
 
-/**
- * Gerçek (Real) e-Devlet YÖK & Nüfus Vatandaşlık İdaresi (NVI) Doğrulama Servisi
- * AUTH_MODE="REAL" veya "LIVE" yapıldığında aktif olur.
- * Kamu kurumundan alınacak SOAP / REST API entegrasyon protokollerini bağlamak için hazırdır.
- */
 export class RealEDevletAuthAdapter implements IEdevletAuthAdapter {
-  public async verifyStudentIdentity(
-    input: EDevletVerifyInput
-  ): Promise<EDevletVerifyResult> {
-    // Canlı e-Devlet SOAP KPS (Kimlik Paylaşım Sistemi) veya YÖK Web Servis Çağrısı
-    console.log(`[RealEDevletAuthAdapter] Canlı e-Devlet doğrulaması çağrılıyor TCKN: ${input.tcKn}`);
+  async verifyStudentEligibility(tcKn: string, birthYear: number): Promise<StudentAuthCheckResult> {
+    try {
+      // Belediyenin canlı API'sine atılacak HTTP POST isteği
+      const response = await axios.post(process.env.BELEDIYE_EDEVLET_URL!, {
+        tc_kn: tcKn,
+        birth_year: birthYear
+      }, {
+        headers: { 'Authorization': `Bearer ${process.env.BELEDIYE_API_KEY}` }
+      });
 
-    // Gerçek e-Devlet entegrasyon bilgileri .env dosyasına yazıldığında aktifleşir.
-    if (!process.env.EDEVLET_API_KEY || !process.env.EDEVLET_SOAP_ENDPOINT) {
       return {
-        isVerified: false,
-        message: 'Canlı e-Devlet API anahtarı veya servis adresi henüz tanımlanmamış (AUTH_MODE=REAL).',
+        isEligible: response.data.is_eligible,
+        belediyeStudentId: response.data.user_details.belediye_id,
+        tcKn,
+        firstName: response.data.user_details.first_name,
+        lastName: response.data.user_details.last_name,
+        message: response.data.message
+      };
+    } catch (error) {
+      return {
+        isEligible: false,
+        tcKn,
+        message: 'Belediye doğrulama servisi ile iletişim kurulamadı.'
       };
     }
-
-    // Örnek Canlı Servis İskeleti
-    return {
-      isVerified: true,
-      message: 'Canlı e-Devlet Kurumsal API Doğrulaması Başarılı',
-      refCode: `EDEVLET-REAL-REF-${Date.now()}`,
-      studentDetails: {
-        tcKn: input.tcKn,
-        firstName: input.firstName.toUpperCase(),
-        lastName: input.lastName.toUpperCase(),
-        birthYear: input.birthYear,
-        schoolName: 'Karadeniz Teknik Üniversitesi (KTÜ)',
-        district: 'Ortahisar',
-        isEligible: true,
-      },
-    };
   }
 }
