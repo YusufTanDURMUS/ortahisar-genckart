@@ -1,24 +1,22 @@
-import { prisma } from '../prisma';
-
 export interface EDevletVerifyInput {
-  tckn: string;
-  name: string;
-  surname: string;
+  tcKn: string;
+  firstName: string;
+  lastName: string;
   birthYear: number;
 }
 
 export interface EDevletVerifyResult {
   isVerified: boolean;
   message: string;
+  refCode?: string;
   studentDetails?: {
-    tckn: string;
-    name: string;
-    surname: string;
-    university: string;
-    department: string;
-    studentNumber: string;
+    tcKn: string;
+    firstName: string;
+    lastName: string;
+    schoolName: string;
+    district: string;
     birthYear: number;
-    isActiveStudent: boolean;
+    isEligible: boolean;
   };
 }
 
@@ -29,120 +27,79 @@ export interface EDevletVerifyResult {
 export class MockEDevletAuthAdapter {
   private static mockStudentDatabase = [
     {
-      tckn: '11111111110',
-      name: 'YUSUF TAN',
-      surname: 'DURMUŞ',
+      tcKn: '11111111110',
+      firstName: 'YUSUF TAN',
+      lastName: 'DURMUŞ',
       birthYear: 2002,
-      university: 'Karadeniz Teknik Üniversitesi (KTÜ)',
-      department: 'Yazılım Mühendisliği',
-      studentNumber: '394812',
-      isActiveStudent: true,
+      schoolName: 'Karadeniz Teknik Üniversitesi (KTÜ)',
+      district: 'Ortahisar',
+      isEligible: true,
     },
     {
-      tckn: '61616161616',
-      name: 'AHMET',
-      surname: 'YILMAZ',
+      tcKn: '61616161616',
+      firstName: 'AHMET',
+      lastName: 'YILMAZ',
       birthYear: 2003,
-      university: 'Karadeniz Teknik Üniversitesi (KTÜ)',
-      department: 'Bilgisayar Mühendisliği',
-      studentNumber: '61001',
-      isActiveStudent: true,
+      schoolName: 'Karadeniz Teknik Üniversitesi (KTÜ)',
+      district: 'Ortahisar',
+      isEligible: true,
     },
     {
-      tckn: '12345678901',
-      name: 'AYŞE',
-      surname: 'DEMİR',
+      tcKn: '12345678901',
+      firstName: 'AYŞE',
+      lastName: 'DEMİR',
       birthYear: 2004,
-      university: 'Avrasya Üniversitesi',
-      department: 'İşletme',
-      studentNumber: '61002',
-      isActiveStudent: true,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
     },
   ];
 
-  /**
-   * TCKN Algoritmik Format Kontrolü (11 Hane ve Sayısal)
-   */
-  private static validateTcknFormat(tckn: string): boolean {
-    if (!/^[1-9][0-9]{10}$/.test(tckn)) {
-      return false;
-    }
-    return true;
+  private static validateTcKnFormat(tcKn: string): boolean {
+    return /^[1-9][0-9]{10}$/.test(tcKn);
   }
 
-  /**
-   * e-Devlet Kimlik & Öğrenci Durumu Doğrulama Metodu
-   */
   public static async verifyStudentIdentity(
     input: EDevletVerifyInput
   ): Promise<EDevletVerifyResult> {
-    const authMode = process.env.AUTH_MODE || 'MOCK';
-    const cleanTckn = input.tckn.trim();
-    const cleanName = input.name.trim().toUpperCase();
-    const cleanSurname = input.surname.trim().toUpperCase();
+    const cleanTcKn = input.tcKn.trim();
+    const cleanFirstName = input.firstName.trim().toUpperCase();
+    const cleanLastName = input.lastName.trim().toUpperCase();
 
-    // 1. TCKN Format Kontrolü
-    if (!this.validateTcknFormat(cleanTckn)) {
+    if (!this.validateTcKnFormat(cleanTcKn)) {
       return {
         isVerified: false,
-        message: 'Geçersiz TCKN formatı. TC Kimlik No 11 haneli sayısal değer olmalıdır.',
+        message: 'Geçersiz TC Kimlik No formatı (11 haneli sayı olmalıdır).',
       };
     }
 
-    let isVerified = false;
-    let studentInfo: any = null;
-    let message = '';
+    const refCode = `EDEVLET-REF-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    if (authMode === 'MOCK') {
-      // MOCK Modu: Verilen TCKN mock listede var mı bak, yoksa genel kabul simülasyonu çalıştır
-      const foundInMock = this.mockStudentDatabase.find(
-        (s) => s.tckn === cleanTckn
-      );
+    const found = this.mockStudentDatabase.find((s) => s.tcKn === cleanTcKn);
 
-      if (foundInMock) {
-        isVerified = true;
-        studentInfo = foundInMock;
-        message = 'e-Devlet Nüfus & YÖK Öğrenci Doğrulaması Başarılı (Mock Veri)';
-      } else {
-        // Dinamik Mock: Herhangi geçerli 11 haneli TCKN için otomatik öğrenci kaydı simülasyonu
-        isVerified = true;
-        studentInfo = {
-          tckn: cleanTckn,
-          name: cleanName || 'ÖĞRENCİ',
-          surname: cleanSurname || 'KULLANICI',
-          birthYear: input.birthYear || 2002,
-          university: 'Karadeniz Teknik Üniversitesi (KTÜ)',
-          department: 'Öğrenci Lisans Programı',
-          studentNumber: `KTU-${Math.floor(10000 + Math.random() * 90000)}`,
-          isActiveStudent: true,
-        };
-        message = 'e-Devlet Dinamik Otomatik Öğrenci Doğrulaması Başarılı (MOCK Modu)';
-      }
-    } else {
-      // CANLI Mod (İleride e-Devlet SOAP / REST API entegre edilecek alan)
-      message = 'Canlı e-Devlet API entegrasyonu henüz konfigüre edilmedi (AUTH_MODE=LIVE).';
+    if (found) {
+      return {
+        isVerified: true,
+        message: 'e-Devlet YÖK Öğrenci ve İkamet Doğrulaması Başarılı',
+        refCode,
+        studentDetails: found,
+      };
     }
 
-    // 2. Doğrulama Logunu Veritabanına Kaydet (Auditing)
-    try {
-      await prisma.eDevletMockLog.create({
-        data: {
-          tckn: cleanTckn,
-          name: cleanName,
-          surname: cleanSurname,
-          birthYear: input.birthYear,
-          isVerified,
-          university: studentInfo?.university || null,
-        },
-      });
-    } catch (dbError) {
-      console.warn('e-Devlet log kaydı veritabanına yazılamadı (Offline modda atlandı).');
-    }
-
+    // Dynamic mock for any valid 11-digit TCKN
     return {
-      isVerified,
-      message,
-      studentDetails: isVerified ? studentInfo : undefined,
+      isVerified: true,
+      message: 'e-Devlet Dinamik Otomatik Öğrenci Doğrulaması Başarılı (Ortahisar İkametli)',
+      refCode,
+      studentDetails: {
+        tcKn: cleanTcKn,
+        firstName: cleanFirstName || 'ÖĞRENCİ',
+        lastName: cleanLastName || 'KULLANICI',
+        birthYear: input.birthYear || 2002,
+        schoolName: 'Karadeniz Teknik Üniversitesi (KTÜ)',
+        district: 'Ortahisar',
+        isEligible: true,
+      },
     };
   }
 }

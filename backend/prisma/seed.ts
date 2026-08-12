@@ -1,95 +1,77 @@
-import { PrismaClient, UserRole, RequestStatus, TransactionStatus } from '@prisma/client';
+import { PrismaClient, Role, DiscountRequestStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Ortahisar Gençkart Veritabanı Tohumlama (Seeding) Başlatılıyor...');
+  console.log('🌱 Ortahisar Gençkart Yeni Şema Veritabanı Tohumlama Başlatılıyor...');
 
   // 1. Admin Kullanıcı
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@ortahisar.bel.tr' },
     update: {},
     create: {
-      tckn: '10000000000',
-      name: 'Belediye',
-      surname: 'Yöneticisi',
+      role: Role.ADMIN,
       email: 'admin@ortahisar.bel.tr',
-      role: UserRole.ADMIN,
+      passwordHash: '$2b$10$AdminSuperSecretHashPass', // Admin Hash
+      phoneNumber: '04620000000',
     },
   });
 
-  // 2. Örnek Öğrenciler
-  const student1 = await prisma.user.upsert({
+  // 2. Örnek Öğrenci Kullanıcıları
+  const studentUser1 = await prisma.user.upsert({
     where: { email: 'yusuf@ogr.ktu.edu.tr' },
     update: {},
     create: {
-      tckn: '11111111110',
-      name: 'Yusuf Tan',
-      surname: 'Durmuş',
+      role: Role.STUDENT,
       email: 'yusuf@ogr.ktu.edu.tr',
-      role: UserRole.STUDENT,
-      university: 'Karadeniz Teknik Üniversitesi (KTÜ)',
-      department: 'Yazılım Mühendisliği',
-      studentNumber: '394812',
+      phoneNumber: '05321112233',
     },
   });
 
-  const student2 = await prisma.user.upsert({
-    where: { email: 'ahmet@ogr.ktu.edu.tr' },
+  const studentProfile1 = await prisma.studentProfile.upsert({
+    where: { tcKn: '11111111110' },
     update: {},
     create: {
-      tckn: '61616161616',
-      name: 'Ahmet',
-      surname: 'Yılmaz',
-      email: 'ahmet@ogr.ktu.edu.tr',
-      role: UserRole.STUDENT,
-      university: 'Karadeniz Teknik Üniversitesi (KTÜ)',
-      department: 'Bilgisayar Mühendisliği',
-      studentNumber: '61001',
+      userId: studentUser1.id,
+      tcKn: '11111111110',
+      firstName: 'Yusuf Tan',
+      lastName: 'Durmuş',
+      birthYear: 2002,
+      schoolName: 'Karadeniz Teknik Üniversitesi (KTÜ)',
+      district: 'Ortahisar',
+      isEligible: true,
+      edevletRefCode: 'EDEVLET-REF-61001',
     },
   });
 
   // 3. Örnek Esnaflar Listesi (Ortahisar / Trabzon yerel işletmeleri)
   const esnaflarData = [
     {
-      shopName: 'Trabzon Tarihi Kalkınma Fırını',
-      ownerName: 'Mustafa Usta',
-      taxNumber: '6100000001',
+      businessName: 'Trabzon Tarihi Kalkınma Fırını',
       category: 'Fırın & Tatlı',
       address: 'Kalkınma Mah. No:12 Ortahisar/Trabzon',
-      phone: '0462 325 0001',
-      discountRate: 15.0,
+      taxNumber: '6100000001',
+      defaultDiscountRate: 15.0,
       email: 'kalkinmafirini@gmail.com',
+      phoneNumber: '04623250001',
     },
     {
-      shopName: 'KTÜ Kampüs Kafe & Restoran',
-      ownerName: 'Mehmet Ali Bey',
-      taxNumber: '6100000002',
+      businessName: 'KTÜ Kampüs Kafe & Restoran',
       category: 'Restoran / Kafe',
       address: 'KTÜ Kanuni Kampüsü Ortahisar/Trabzon',
-      phone: '0462 325 0002',
-      discountRate: 20.0,
+      taxNumber: '6100000002',
+      defaultDiscountRate: 20.0,
       email: 'kampuskafe@gmail.com',
+      phoneNumber: '04623250002',
     },
     {
-      shopName: 'Akçaabat Köftecisi Trabzon Şubesi',
-      ownerName: 'Süleyman Usta',
-      taxNumber: '6100000003',
-      category: 'Restoran',
-      address: 'Meydan Parkı Yanı No:4 Ortahisar/Trabzon',
-      phone: '0462 325 0003',
-      discountRate: 10.0,
-      email: 'kofteci61@gmail.com',
-    },
-    {
-      shopName: 'Bordo Mavi Kitap & Kırtasiye',
-      ownerName: 'Emine Hanım',
-      taxNumber: '6100000004',
+      businessName: 'Bordo Mavi Kitap & Kırtasiye',
       category: 'Kırtasiye',
       address: 'Kalkınma Mah. Üniversite Cad. No:18 Ortahisar/Trabzon',
-      phone: '0462 325 0004',
-      discountRate: 12.0,
+      taxNumber: '6100000003',
+      defaultDiscountRate: 12.0,
       email: 'bordomavikitap@gmail.com',
+      phoneNumber: '04623250003',
     },
   ];
 
@@ -98,57 +80,53 @@ async function main() {
       where: { email: item.email },
       update: {},
       create: {
-        tckn: item.taxNumber + '0',
-        name: item.ownerName,
-        surname: 'Esnaf',
+        role: Role.MERCHANT,
         email: item.email,
-        role: UserRole.MERCHANT,
+        passwordHash: '$2b$10$MerchantSecretHashPass',
+        phoneNumber: item.phoneNumber,
       },
     });
 
-    const merchant = await prisma.merchant.upsert({
-      where: { taxNumber: item.taxNumber },
+    const merchantProfile = await prisma.merchantProfile.upsert({
+      where: { userId: merchantUser.id },
       update: {},
       create: {
-        shopName: item.shopName,
-        ownerName: item.ownerName,
-        taxNumber: item.taxNumber,
+        userId: merchantUser.id,
+        businessName: item.businessName,
         category: item.category,
         address: item.address,
-        phone: item.phone,
-        discountRate: item.discountRate,
-        userId: merchantUser.id,
+        taxNumber: item.taxNumber,
+        defaultDiscountRate: item.defaultDiscountRate,
       },
     });
 
-    // Örnek indirim talebi oluştur
+    // İndirim Değişiklik Talebi
     await prisma.discountRequest.create({
       data: {
-        merchantId: merchant.id,
-        currentRate: item.discountRate,
-        requestedRate: item.discountRate + 5,
-        reason: 'Öğrencilere yeni eğitim döneminde daha yüksek destek sağlama talebi.',
-        status: RequestStatus.PENDING,
+        merchantId: merchantProfile.id,
+        currentRate: item.defaultDiscountRate,
+        requestedRate: item.defaultDiscountRate + 5.0,
+        status: DiscountRequestStatus.PENDING,
+        adminNote: 'Öğrencilere daha yüksek indirim sağlama talebi.',
       },
     });
 
-    // Örnek işlem geçmişi ekle
+    // Örnek İşlem Kaydı
     await prisma.transaction.create({
       data: {
-        transactionCode: `TX-61-${Math.floor(100000 + Math.random() * 900000)}`,
+        studentId: studentProfile1.id,
+        merchantId: merchantProfile.id,
         originalAmount: 200.0,
-        discountRate: item.discountRate,
-        discountAmount: (200.0 * item.discountRate) / 100,
-        finalAmount: 200.0 - (200.0 * item.discountRate) / 100,
-        status: TransactionStatus.COMPLETED,
-        studentId: student1.id,
-        merchantId: merchant.id,
-        deviceSource: 'MOBILE_APP',
+        discountRate: item.defaultDiscountRate,
+        discountedAmount: 200.0 * (1 - item.defaultDiscountRate / 100),
+        savedAmount: 200.0 * (item.defaultDiscountRate / 100),
+        integrationType: 'KEYBOARD_WEDGE',
+        verificationCode: `GK-CONFIRM-${Math.floor(100000 + Math.random() * 900000)}`,
       },
     });
   }
 
-  console.log('✅ Ortahisar Gençkart Veritabanı Seeding Tamamlandı!');
+  console.log('✅ Yeni Ortahisar Gençkart Şeması Veritabanı Tohumlama Tamamlandı!');
 }
 
 main()

@@ -4,20 +4,19 @@ import { prisma } from '../prisma';
 
 export const verifyEDevletStudent = async (req: Request, res: Response) => {
   try {
-    const { tckn, name, surname, birthYear } = req.body;
+    const { tcKn, firstName, lastName, birthYear } = req.body;
 
-    if (!tckn || !name || !surname || !birthYear) {
+    if (!tcKn || !firstName || !lastName || !birthYear) {
       return res.status(400).json({
         success: false,
         message: 'Eksik bilgi: TCKN, ad, soyad ve doğum yılı zorunludur.',
       });
     }
 
-    // 1. Mock e-Devlet Adaptörü ile Doğrulama Yap
     const authResult = await MockEDevletAuthAdapter.verifyStudentIdentity({
-      tckn,
-      name,
-      surname,
+      tcKn,
+      firstName,
+      lastName,
       birthYear: Number(birthYear),
     });
 
@@ -30,42 +29,41 @@ export const verifyEDevletStudent = async (req: Request, res: Response) => {
 
     const details = authResult.studentDetails;
 
-    // 2. Doğrulanan Öğrenciyi Veritabanına Kaydet veya Güncelle (Upsert)
-    const user = await prisma.user.upsert({
-      where: { tckn: details.tckn },
-      update: {
-        name: details.name,
-        surname: details.surname,
-        university: details.university,
-        department: details.department,
-        studentNumber: details.studentNumber,
-      },
-      create: {
-        tckn: details.tckn,
-        name: details.name,
-        surname: details.surname,
-        email: `${details.tckn}@genckart.ortahisar.bel.tr`,
-        birthYear: details.birthYear,
-        university: details.university,
-        department: details.department,
-        studentNumber: details.studentNumber,
-        role: 'STUDENT',
-      },
+    // Create or find User & StudentProfile
+    let studentProfile = await prisma.studentProfile.findUnique({
+      where: { tcKn: details.tcKn },
+      include: { user: true },
     });
+
+    if (!studentProfile) {
+      const user = await prisma.user.create({
+        data: {
+          role: 'STUDENT',
+          email: `${details.tcKn}@genckart.ortahisar.bel.tr`,
+          phoneNumber: req.body.phoneNumber || null,
+        },
+      });
+
+      studentProfile = await prisma.studentProfile.create({
+        data: {
+          userId: user.id,
+          tcKn: details.tcKn,
+          firstName: details.firstName,
+          lastName: details.lastName,
+          birthYear: details.birthYear,
+          schoolName: details.schoolName,
+          district: details.district,
+          isEligible: details.isEligible,
+          edevletRefCode: authResult.refCode,
+        },
+        include: { user: true },
+      });
+    }
 
     res.json({
       success: true,
       message: authResult.message,
-      data: {
-        id: user.id,
-        tckn: user.tckn,
-        name: user.name,
-        surname: user.surname,
-        university: user.university,
-        department: user.department,
-        studentNumber: user.studentNumber,
-        studentStatus: user.studentStatus,
-      },
+      data: studentProfile,
     });
   } catch (error: any) {
     res.status(500).json({
