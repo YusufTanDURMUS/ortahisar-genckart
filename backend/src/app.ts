@@ -5,6 +5,7 @@ import authRoutes from './routes/auth.routes';
 import discountRoutes from './routes/discount.routes';
 import esnafRoutes from './routes/esnaf.routes';
 import qrRoutes from './routes/qr.routes';
+import adminRoutes from './routes/admin.routes';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 // API Rotaları
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/discount', discountRoutes);
+app.use('/api/v1/admin', adminRoutes);
 app.use('/api/esnaf', esnafRoutes);
 app.use('/api/qr', qrRoutes);
 

@@ -19,24 +19,29 @@ export default function EsnafTarayiciPage() {
   const [result, setResult] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // 1. Oturum Kontrolü (JWT Token Var mı?)
   useEffect(() => {
     const token = localStorage.getItem('merchant_token');
     const info = localStorage.getItem('merchant_info');
 
-    if (!token || !info) {
+    if (!token) {
       router.push('/esnaf/login');
       return;
     }
 
-    setMerchant(JSON.parse(info));
+    if (info) {
+      setMerchant(JSON.parse(info));
+    }
   }, [router]);
 
+  // 2. Kamera QR Okuduğunda Çalışan Metod
   const handleScanSuccess = (qrData: string) => {
     if (!scannedQR) {
       setScannedQR(qrData);
     }
   };
 
+  // 3. Backend API'ye İndirim Doğrulama İsteği Gönder
   const handleVerifyDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!scannedQR || !amount) return;
@@ -46,6 +51,7 @@ export default function EsnafTarayiciPage() {
 
     try {
       const token = localStorage.getItem('merchant_token');
+      
       const res = await fetch('http://localhost:3000/api/v1/discount/verify', {
         method: 'POST',
         headers: {
@@ -62,17 +68,18 @@ export default function EsnafTarayiciPage() {
       const data = await res.json();
 
       if (res.ok && data.status === 'SUCCESS') {
-        setResult(data.data);
+        setResult(data.data); // Yeşil onay kartını tetikle
       } else {
-        setError(data.message || 'İndirim onaylanamadı.');
+        setError(data.message || 'İndirim onaylanamadı. QR kod süresi dolmuş veya geçersiz olabilir.');
       }
     } catch (err) {
-      setError('Sunucu ile iletişim kurulamadı.');
+      setError('Backend API sunucusuna bağlanılamadı.');
     } finally {
       setLoading(false);
     }
   };
 
+  // 4. Yeni İşlem İçin Ekranı Sıfırla
   const resetScanner = () => {
     setScannedQR(null);
     setAmount('');
@@ -88,7 +95,7 @@ export default function EsnafTarayiciPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      {/* Üst Bar */}
+      {/* Header */}
       <header className="bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-sky-500/10 border border-sky-500/30 rounded-xl flex items-center justify-center text-sky-400">
@@ -110,7 +117,8 @@ export default function EsnafTarayiciPage() {
 
       {/* Ana İçerik */}
       <main className="flex-1 p-4 max-w-md mx-auto w-full flex flex-col justify-center">
-        {/* Durum 1: Yeşil Onay Kartı (İşlem Başarılı) */}
+        
+        {/* DURUM 1: İndirim Başarıyla Onaylandı (Yeşil Onay Kartı) */}
         {result ? (
           <div className="bg-emerald-950/40 border-2 border-emerald-500/50 rounded-3xl p-6 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/30">
@@ -156,7 +164,8 @@ export default function EsnafTarayiciPage() {
             </button>
           </div>
         ) : scannedQR ? (
-          /* Durum 2: QR Okundu -> Tutar Girme Ekranı */
+          
+          /* DURUM 2: QR Kod Okundu -> Fatura Tutarı Girme Ekranı */
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-sky-500/10 text-sky-400 rounded-xl">
@@ -211,7 +220,8 @@ export default function EsnafTarayiciPage() {
             </form>
           </div>
         ) : (
-          /* Durum 3: Kamera İle QR Okuma Ekranı */
+          
+          /* DURUM 3: Kamera İle QR Okuma Ekranı */
           <div className="space-y-4 text-center">
             <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-xl">
               <h3 className="text-lg font-bold text-white mb-1">Müşteri QR Kodunu Okutun</h3>

@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWindowsForms>true</UseWindowsForms>
-    <UseWPF>true</UseWPF>
     <StartupObject>OrtahisarEsnafAgent.Program</StartupObject>
     <ApplicationIcon />
   </PropertyGroup>

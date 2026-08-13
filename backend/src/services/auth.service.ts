@@ -78,4 +78,38 @@ export class AuthService {
       }
     };
   }
+
+  // ──────────────────────────────────────────────
+  // E-posta + Şifre ile Giriş (Esnaf & Admin)
+  // ──────────────────────────────────────────────
+  static async loginWithPassword(email: string, password: string) {
+    const bcrypt = require('bcryptjs');
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { merchantProfile: true }
+    });
+
+    if (!user || !user.passwordHash) {
+      throw new Error('E-posta veya şifre hatalı.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new Error('E-posta veya şifre hatalı.');
+    }
+
+    // JWT Token üret (role bilgisi dahil)
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        role: user.role,
+        merchantProfileId: user.merchantProfile?.id || null
+      },
+      process.env.JWT_SECRET || 'fallback_secret',
+      { expiresIn: '7d' }
+    );
+
+    return { token, user };
+  }
 }

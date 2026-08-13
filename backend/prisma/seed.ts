@@ -12,7 +12,7 @@ async function main() {
     create: {
       role: 'ADMIN',
       email: 'admin@ortahisar.bel.tr',
-      passwordHash: '$2b$10$AdminSuperSecretHashPass',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa', // admin123
       phoneNumber: '04620000000',
     },
   });
@@ -82,7 +82,7 @@ async function main() {
       create: {
         role: 'MERCHANT',
         email: item.email,
-        passwordHash: '$2b$10$MerchantSecretHashPass',
+        passwordHash: '$2a$10$4rXbrt.Azj5oQ3dBHTbshuJBSAJ8M.AQYnCbbmebj83xq3VjoYPTG', // esnaf123
         phoneNumber: item.phoneNumber,
       },
     });

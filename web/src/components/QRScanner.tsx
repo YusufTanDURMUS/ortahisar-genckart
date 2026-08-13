@@ -5,16 +5,15 @@ import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 
 interface QRScannerProps {
   onScanSuccess: (decodedText: string) => void;
-  onScanError?: (errorMessage: string) => void;
 }
 
 export default function QRScanner({ onScanSuccess }: QRScannerProps) {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
-    // Sayfa mount olduğunda tarayıcı kamerasını başlat
+    // Tarayıcı kamerasını başlat
     const scanner = new Html5QrcodeScanner(
-      'qr-reader',
+      'pwa-qr-reader',
       {
         fps: 10,
         qrbox: { width: 250, height: 250 },
@@ -26,27 +25,30 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
 
     scanner.render(
       (decodedText) => {
-        // Başarılı okuma
+        // Başarılı QR Okuma
         onScanSuccess(decodedText);
       },
-      (error) => {
-        // Sürekli kamera tarama hatası
+      () => {
+        // Okuma sırasındaki anlık hatalar (log basmıyoruz)
       }
     );
 
     scannerRef.current = scanner;
 
     return () => {
-      // Bileşen kapandığında kamerayı güvenle kapat
+      // Sayfadan çıkıldığında kamerayı güvenle kapat
       if (scannerRef.current) {
-        scannerRef.current.clear().catch((err) => console.error('Clear error', err));
+        scannerRef.current.clear().catch((err) => console.error('Kamera kapatma hatası:', err));
       }
     };
   }, [onScanSuccess]);
 
   return (
-    <div className="w-full max-w-sm mx-auto overflow-hidden rounded-2xl border-2 border-sky-500/30 bg-slate-900/50 p-2 shadow-xl">
-      <div id="qr-reader" className="w-full text-white [&_button]:bg-sky-600 [&_button]:px-4 [&_button]:py-2 [&_button]:rounded-lg [&_button]:font-medium [&_button]:text-sm [&_select]:bg-slate-800 [&_select]:p-2 [&_select]:rounded-md" />
+    <div className="w-full max-w-sm mx-auto overflow-hidden rounded-2xl border-2 border-sky-500/30 bg-slate-900 p-2 shadow-xl">
+      <div 
+        id="pwa-qr-reader" 
+        className="w-full text-white [&_button]:bg-sky-600 [&_button]:px-4 [&_button]:py-2 [&_button]:rounded-xl [&_button]:font-medium [&_button]:text-sm [&_select]:bg-slate-800 [&_select]:p-2 [&_select]:rounded-lg [&_select]:text-white" 
+      />
     </div>
   );
 }

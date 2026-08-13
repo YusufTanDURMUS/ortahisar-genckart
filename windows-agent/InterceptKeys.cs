@@ -39,11 +39,10 @@ namespace OrtahisarEsnafAgent
                 int vkCode = Marshal.ReadInt32(lParam);
                 char character = (char)vkCode;
 
-                // Callback metodu true dönerse bu tuş basımını diğer uygulamalara HİÇ GÖNDERME (Intercept et)
                 bool handled = _onKeyPressedCallback?.Invoke(vkCode, character) ?? false;
                 if (handled)
                 {
-                    return (IntPtr)1; // Tuş basımını yut/engelle
+                    return (IntPtr)1; // Tuş basımını yut
                 }
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
