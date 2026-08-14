@@ -28,7 +28,12 @@ export default function EsnafLoginPage() {
       if (data.status === 'SUCCESS') {
         localStorage.setItem('merchant_token', data.data.token);
         localStorage.setItem('merchant_info', JSON.stringify(data.data.merchant));
-        router.push('/esnaf/tarayici');
+        
+        // Middleware için cookie'leri ayarla
+        document.cookie = `token=${data.data.token}; path=/; max-age=604800; samesite=strict`; // 7 days
+        document.cookie = `user_role=MERCHANT; path=/; max-age=604800; samesite=strict`;
+
+        window.location.href = '/esnaf';
       } else {
         setError(data.message || 'Giriş bilgileri hatalı.');
       }

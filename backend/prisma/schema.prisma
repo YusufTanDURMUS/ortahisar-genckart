@@ -45,6 +45,8 @@ model StudentProfile {
   schoolName        String?  @default("Karadeniz Teknik Üniversitesi (KTÜ)") // Okuduğu Okul
   district          String   @default("Ortahisar") // İkamet / Okul İlçesi
   isEligible        Boolean  @default(true) // Aktif öğrencilik/şart durumu
+  statusReason      String   @default("ACTIVE") // Örn: ACTIVE, AGE_LIMIT_EXCEEDED, RESIDENCE_MISMATCH, STUDENT_STATUS_INACTIVE
+  revokedNote       String?  // Ek açıklama
   edevletRefCode    String?  // e-Devlet doğrulama referans kodu
 
   transactions      Transaction[]
@@ -72,7 +74,8 @@ model MerchantProfile {
   defaultDiscountRate Float    // Aktif geçerli indirim oranı (Örn: 15.0 -> %15)
   qrCodeIdentifier    String   @unique @default(uuid()) // Kasadaki Statik QR kimliği
 
-  discountRequests    DiscountRequest[]
+  merchantRequests    MerchantRequest[]
+  storeLocations      StoreLocation[]
   transactions        Transaction[]
 
   createdAt           DateTime @default(now())
@@ -82,24 +85,62 @@ model MerchantProfile {
 }
 
 // ------------------------------------------------------
-// İndirim Oranı Güncelleme Talepleri (Admin Onaylı)
+// Esnaf Talepleri (İndirim, Adres, Yeni Konum vb.)
 // Statuses: PENDING | APPROVED | REJECTED
 // ------------------------------------------------------
 
-model DiscountRequest {
+model MerchantRequest {
   id                String          @id @default(uuid())
   merchantId        String
   merchant          MerchantProfile @relation(fields: [merchantId], references: [id], onDelete: Cascade)
 
-  currentRate       Float           // Talep anındaki mevcut oran
-  requestedRate     Float           // İstenen yeni indirim oranı
-  status            String          @default("PENDING")
-  adminNote         String?         // Reddedildiyse açıklama notu
+  type                  String          // 'DISCOUNT_UPDATE', 'LOCATION_UPDATE', 'NEW_LOCATION'
+  status                String          @default("PENDING") // 'PENDING', 'APPROVED', 'REJECTED'
+  payload               String          // JSON string olarak (eski talepler için)
+  
+  // İndirim Talebi Alanları
+  requestedDiscountRate Float?
+  categoryDiscounts     String?         // SQLite olduğu için listeyi JSON string olarak tutacağız
+
+  // Şube & Adres Talebi Alanları
+  targetLocationId      String?
+  targetLocationTitle   String?
+  city                  String?
+  district              String?
+  neighborhood          String?
+  street                String?
+  buildingNo            String?
+  apartmentNo           String?
+  fullAddress           String?
+  latitude              Float?
+  longitude             Float?
+
+  rejectionReason       String?         // Red gerekçesi
+
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  @@map("merchant_requests")
+}
+
+// ------------------------------------------------------
+// Esnaf Şubeleri / Konumları
+// ------------------------------------------------------
+
+model StoreLocation {
+  id                String          @id @default(uuid())
+  merchantId        String
+  merchant          MerchantProfile @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  
+  title             String          // Örn: "Merkez Şube"
+  address           String
+  latitude          Float?
+  longitude         Float?
+  isMain            Boolean         @default(false)
 
   createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
 
-  @@map("discount_requests")
+  @@map("store_locations")
 }
 
 // ------------------------------------------------------
@@ -122,6 +163,7 @@ model Transaction {
 
   integrationType   String          // 'KEYBOARD_WEDGE', 'PWA_SCAN', 'STATIC_QR'
   verificationCode  String          // İşlem doğrulama / onay kodu
+  status            String          @default("PENDING") // 'PENDING' | 'COMPLETED' | 'CANCELLED'
 
   createdAt         DateTime        @default(now())
 

@@ -13,11 +13,12 @@ interface MerchantInfo {
 export default function EsnafTarayiciPage() {
   const router = useRouter();
   const [merchant, setMerchant] = useState<MerchantInfo | null>(null);
-  const [scannedQR, setScannedQR] = useState<string | null>(null);
   const [amount, setAmount] = useState<string>('');
+  const [isScanning, setIsScanning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastScannedQR, setLastScannedQR] = useState<string | null>(null);
 
   // 1. Oturum Kontrolü (JWT Token Var mı?)
   useEffect(() => {
@@ -34,20 +35,13 @@ export default function EsnafTarayiciPage() {
     }
   }, [router]);
 
-  // 2. Kamera QR Okuduğunda Çalışan Metod
-  const handleScanSuccess = (qrData: string) => {
-    if (!scannedQR) {
-      setScannedQR(qrData);
-    }
-  };
-
-  // 3. Backend API'ye İndirim Doğrulama İsteği Gönder
-  const handleVerifyDiscount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!scannedQR || !amount) return;
-
+  // 2. Kamera QR Okuduğunda Çalışan Metod (Anında İstek Atar)
+  const handleScanSuccess = async (qrData: string) => {
+    if (loading || qrData === lastScannedQR || !amount) return;
+    
     setLoading(true);
     setError(null);
+    setLastScannedQR(qrData);
 
     try {
       const token = localStorage.getItem('merchant_token');
@@ -59,7 +53,7 @@ export default function EsnafTarayiciPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          qrData: scannedQR,
+          qrData: qrData,
           originalAmount: Number(amount),
           integrationType: 'PWA_SCAN',
         }),
@@ -68,20 +62,37 @@ export default function EsnafTarayiciPage() {
       const data = await res.json();
 
       if (res.ok && data.status === 'SUCCESS') {
+        setIsScanning(false);
         setResult(data.data); // Yeşil onay kartını tetikle
       } else {
         setError(data.message || 'İndirim onaylanamadı. QR kod süresi dolmuş veya geçersiz olabilir.');
+        // Hata durumunda tarayıcı açık kalsın (belki tekrar okutur)
       }
     } catch (err) {
       setError('Backend API sunucusuna bağlanılamadı.');
     } finally {
       setLoading(false);
+      // 3 saniye sonra aynı kodu tekrar okuyabilmeye izin ver
+      setTimeout(() => {
+        setLastScannedQR(null);
+      }, 3000);
     }
+  };
+
+  // 3. Tarayıcıyı Başlat
+  const startScanning = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!amount || Number(amount) <= 0) {
+      setError('Lütfen geçerli bir tutar girin.');
+      return;
+    }
+    setError(null);
+    setIsScanning(true);
   };
 
   // 4. Yeni İşlem İçin Ekranı Sıfırla
   const resetScanner = () => {
-    setScannedQR(null);
+    setIsScanning(false);
     setAmount('');
     setResult(null);
     setError(null);
@@ -163,72 +174,92 @@ export default function EsnafTarayiciPage() {
               Yeni İşlem Yap
             </button>
           </div>
-        ) : scannedQR ? (
+        ) : isScanning ? (
           
-          /* DURUM 2: QR Kod Okundu -> Fatura Tutarı Girme Ekranı */
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-sky-500/10 text-sky-400 rounded-xl">
+          /* DURUM 2: Kamera İle QR Okuma Ekranı */
+          <div className="space-y-4 text-center">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-1">Müşteri QR Kodunu Okutun</h3>
+              <p className="text-xs text-slate-400 mb-6">Fatura Tutarı: <span className="text-emerald-400 font-bold">{amount} TL</span></p>
+
+              {error && (
+                <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm text-left">
+                  <XCircle size={20} />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {loading ? (
+                <div className="py-20 flex flex-col items-center justify-center">
+                  <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <p className="text-slate-300 font-medium">İndirim Doğrulanıyor...</p>
+                </div>
+              ) : (
+                <QRScanner onScanSuccess={handleScanSuccess} />
+              )}
+
+              <button
+                onClick={() => setIsScanning(false)}
+                disabled={loading}
+                className="mt-6 w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-4 rounded-xl transition-colors disabled:opacity-50"
+              >
+                İptal Et
+              </button>
+            </div>
+          </div>
+        ) : (
+          
+          /* DURUM 3: Tutar Girme Ekranı (İlk Ekran) */
+          <div className="bg-slate-900 border border-emerald-500/20 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+            {/* Dekoratif Arka Plan Glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl"></div>
+
+            <div className="flex items-center gap-3 mb-6 relative z-10">
+              <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
                 <Receipt size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Genç Kart Yakalandı</h3>
-                <p className="text-xs text-slate-400">Hesap tutarını giriniz</p>
+                <h3 className="text-lg font-bold text-white">QR Kod ile Ödeme Al</h3>
+                <p className="text-xs text-slate-400">Anlık İşlem</p>
               </div>
             </div>
 
             {error && (
-              <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm">
+              <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm relative z-10">
                 <XCircle size={20} />
                 <span>{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleVerifyDiscount} className="space-y-4">
+            <form onSubmit={startScanning} className="space-y-6 relative z-10">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wider">
-                  Toplam Fatura Tutarı (TL)
+                <label className="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">
+                  Ödeme Tutarı (TL)
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  required
-                  autoFocus
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-4 text-3xl font-bold text-white placeholder-slate-600 focus:outline-none focus:border-sky-500 transition-colors text-center"
-                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    autoFocus
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-5 py-4 text-3xl font-bold text-emerald-400 placeholder-slate-700 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-center"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-xl">₺</span>
+                </div>
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={resetScanner}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-4 rounded-xl transition-colors"
-                >
-                  İptal
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading || !amount}
-                  className="flex-[2] bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-sky-600/20 flex items-center justify-center gap-2"
-                >
-                  {loading ? 'Hesaplanıyor...' : 'İndirimi Uygula'}
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={!amount}
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transform active:scale-95"
+              >
+                <Store size={20} />
+                Kamerayı Aç ve Öğrenciyi Oku
+              </button>
             </form>
-          </div>
-        ) : (
-          
-          /* DURUM 3: Kamera İle QR Okuma Ekranı */
-          <div className="space-y-4 text-center">
-            <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-xl">
-              <h3 className="text-lg font-bold text-white mb-1">Müşteri QR Kodunu Okutun</h3>
-              <p className="text-xs text-slate-400 mb-6">Öğrencinin Genç Kart uygulamasındaki canlı QR kodunu kameraya tutun.</p>
-
-              <QRScanner onScanSuccess={handleScanSuccess} />
-            </div>
           </div>
         )}
       </main>

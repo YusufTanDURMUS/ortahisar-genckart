@@ -16,7 +16,7 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:3000/api/v1/auth/merchant-login', {
+      const res = await fetch('http://localhost:3000/api/v1/auth/admin-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -26,7 +26,12 @@ export default function AdminLoginPage() {
 
       if (res.ok && data.status === 'SUCCESS') {
         localStorage.setItem('admin_token', data.data.token);
-        router.push('/admin/dashboard');
+        
+        // Middleware için cookie'leri ayarla
+        document.cookie = `token=${data.data.token}; path=/; max-age=604800; samesite=strict`; // 7 days
+        document.cookie = `user_role=ADMIN; path=/; max-age=604800; samesite=strict`;
+
+        window.location.href = '/admin/dashboard';
       } else {
         setError(data.message || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
       }

@@ -9,6 +9,12 @@ interface QRScannerProps {
 
 export default function QRScanner({ onScanSuccess }: QRScannerProps) {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const callbackRef = useRef(onScanSuccess);
+
+  // Callback'i her render'da güncelle (Kamerayı yeniden başlatmamak için)
+  useEffect(() => {
+    callbackRef.current = onScanSuccess;
+  }, [onScanSuccess]);
 
   useEffect(() => {
     // Tarayıcı kamerasını başlat
@@ -26,7 +32,9 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
     scanner.render(
       (decodedText) => {
         // Başarılı QR Okuma
-        onScanSuccess(decodedText);
+        if (callbackRef.current) {
+          callbackRef.current(decodedText);
+        }
       },
       () => {
         // Okuma sırasındaki anlık hatalar (log basmıyoruz)
@@ -41,7 +49,7 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
         scannerRef.current.clear().catch((err) => console.error('Kamera kapatma hatası:', err));
       }
     };
-  }, [onScanSuccess]);
+  }, []); // SADECE İLK MOUNT'TA ÇALIŞSIN
 
   return (
     <div className="w-full max-w-sm mx-auto overflow-hidden rounded-2xl border-2 border-sky-500/30 bg-slate-900 p-2 shadow-xl">

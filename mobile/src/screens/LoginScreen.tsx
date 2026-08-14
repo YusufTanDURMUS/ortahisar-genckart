@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config/api';
@@ -18,31 +19,46 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
-  const [tcKn, setTcKn] = useState('');
-  const [birthYear, setBirthYear] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!tcKn || !birthYear || !phoneNumber) {
-      Alert.alert('Eksik Bilgi', 'Lütfen tüm alanları doldurunuz.');
+    if (!identifier || !password) {
+      Alert.alert('Eksik Bilgi', 'Lütfen Kullanıcı Adı ve Şifrenizi giriniz.');
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/student-login`, {
+      let endpoint = `${API_BASE_URL}/auth/student-login`;
+      let requestBody: any = { identifier, password };
+
+      if (identifier.includes('@')) {
+        // Try merchant first
+        endpoint = `${API_BASE_URL}/auth/merchant-login`;
+        requestBody = { email: identifier, password };
+      }
+
+      let response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tcKn,
-          birthYear: Number(birthYear),
-          phoneNumber,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-      const json = await response.json();
+      let json = await response.json();
+
+      // If merchant failed with unauthorized, try admin
+      if (identifier.includes('@') && json.status === 'FAILED' && json.message === 'Yetkisiz giriş.') {
+        endpoint = `${API_BASE_URL}/auth/admin-login`;
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        });
+        json = await response.json();
+      }
 
       if (json.status === 'SUCCESS') {
         const { token, user } = json.data;
@@ -72,40 +88,36 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
         <TextInput
           style={styles.input}
-          placeholder="TC Kimlik Numarası"
+          placeholder="TC, Telefon veya E-posta"
           placeholderTextColor="#64748b"
-          keyboardType="numeric"
-          maxLength={11}
-          value={tcKn}
-          onChangeText={setTcKn}
+          autoCapitalize="none"
+          keyboardType={identifier.includes('@') ? 'email-address' : 'default'}
+          value={identifier}
+          onChangeText={setIdentifier}
         />
 
         <TextInput
           style={styles.input}
-          placeholder="Doğum Yılı (Örn: 2003)"
+          placeholder="Şifre"
           placeholderTextColor="#64748b"
-          keyboardType="numeric"
-          maxLength={4}
-          value={birthYear}
-          onChangeText={setBirthYear}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Telefon Numarası (05XX...)"
-          placeholderTextColor="#64748b"
-          keyboardType="phone-pad"
-          maxLength={11}
-          value={phoneNumber}
-          onChangeText={setPhoneNumber}
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
 
         <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Genç Kartımı Getir</Text>
+            <Text style={styles.buttonText}>Giriş Yap</Text>
           )}
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.linkButton} 
+          onPress={() => Linking.openURL('https://onlineislemler.trabzonortahisar.bel.tr/omis/?_gl=1*nhy6tn*_ga*MTI2ODczMDc3MC4xNzg2MzQ4NDU2*_ga_PYJE9NBWR5*czE3ODY2OTIyMzAkbzYkZzEkdDE3ODY2OTIyNTAkajQwJGwwJGgw#/login')}
+        >
+          <Text style={styles.linkText}>Hesabınız yok mu? İnternet Şubesinden Kayıt Olun</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -121,4 +133,6 @@ const styles = StyleSheet.create({
   input: { backgroundColor: '#0f172a', borderRadius: 12, padding: 14, color: '#ffffff', marginBottom: 12, borderWidth: 1, borderColor: '#334155', fontSize: 15 },
   button: { backgroundColor: '#0284c7', borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 8 },
   buttonText: { color: '#ffffff', fontWeight: 'bold', fontSize: 16 },
+  linkButton: { marginTop: 16, alignItems: 'center', padding: 8 },
+  linkText: { color: '#38bdf8', fontSize: 14, fontWeight: '600' },
 });

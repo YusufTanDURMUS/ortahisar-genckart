@@ -6,6 +6,8 @@ import discountRoutes from './routes/discount.routes';
 import esnafRoutes from './routes/esnaf.routes';
 import qrRoutes from './routes/qr.routes';
 import adminRoutes from './routes/admin.routes';
+import merchantRoutes from './routes/merchant.routes';
+import studentRoutes from './routes/student.routes';
 
 dotenv.config();
 
@@ -17,6 +19,8 @@ app.use(express.json());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/discount', discountRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/merchant', merchantRoutes);
+app.use('/api/v1/student', studentRoutes);
 app.use('/api/esnaf', esnafRoutes);
 app.use('/api/qr', qrRoutes);
 

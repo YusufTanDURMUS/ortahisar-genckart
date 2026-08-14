@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, StatusBar, ActivityIndicator, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NavigationContainer } from '@react-navigation/native';
 import { LoginScreen } from './src/screens/LoginScreen';
-import { HomeScreen } from './src/screens/HomeScreen';
+import { AppNavigator } from './src/navigation/AppNavigator';
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null);
@@ -54,7 +55,9 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
       {token && userData ? (
-        <HomeScreen user={userData} onLogout={handleLogout} />
+        <NavigationContainer>
+          <AppNavigator user={userData} onLogout={handleLogout} />
+        </NavigationContainer>
       ) : (
         <LoginScreen onLoginSuccess={handleLoginSuccess} />
       )}
