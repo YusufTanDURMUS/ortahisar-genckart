@@ -9,13 +9,28 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          900: '#312e81',
+          50: '#f0fdfa', // teal-50
+          100: '#ccfbf1',
+          500: '#14b8a6', // teal-500
+          600: '#0d9488', // teal-600 (Main)
+          700: '#0f766e',
+          900: '#134e4a',
         },
+        ortahisar: {
+          blue: {
+            light: '#38bdf8',
+            DEFAULT: '#0ea5e9',
+            dark: '#0369a1',
+          },
+          green: {
+            light: '#4ade80',
+            DEFAULT: '#22c55e',
+            dark: '#16a34a',
+          },
+          accent: '#f59e0b',
+          light: '#f8fafc',
+          dark: '#0f172a'
+        }
       },
     },
   },

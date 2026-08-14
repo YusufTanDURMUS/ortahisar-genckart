@@ -30,14 +30,19 @@ export const AppNavigator: React.FC<AppNavigatorProps> = ({ user, onLogout }) =>
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#1e293b',
-          borderTopWidth: 0,
+          backgroundColor: '#ffffff',
+          borderTopWidth: 1,
+          borderTopColor: '#e2e8f0',
           elevation: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 10,
           height: 60,
           paddingBottom: 10,
           paddingTop: 10,
         },
-        tabBarActiveTintColor: '#38bdf8',
+        tabBarActiveTintColor: '#0ea5e9', // ortahisar-blue
         tabBarInactiveTintColor: '#94a3b8',
       }}
     >

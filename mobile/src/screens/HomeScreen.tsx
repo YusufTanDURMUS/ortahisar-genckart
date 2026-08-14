@@ -118,21 +118,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ user, onLogout }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a', padding: 20, justifyContent: 'center' },
-  header: { marginBottom: 20, alignItems: 'center' },
-  headerBadge: { color: '#38bdf8', fontSize: 12, fontWeight: '800', letterSpacing: 1.5 },
-  userName: { fontSize: 26, fontWeight: 'bold', color: '#ffffff', marginTop: 4 },
-  tcKn: { fontSize: 14, color: '#94a3b8', marginTop: 2 },
-  qrCard: { backgroundColor: '#ffffff', borderRadius: 24, padding: 20, alignItems: 'center', elevation: 10 },
-  securityBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f5f9', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, marginBottom: 20 },
+  container: { flex: 1, backgroundColor: '#f0f9ff', padding: 20, justifyContent: 'center' }, // sky-50
+  header: { marginBottom: 30, alignItems: 'center' },
+  headerBadge: { color: '#0ea5e9', fontSize: 13, fontWeight: '800', letterSpacing: 1.5, marginBottom: 8 },
+  userName: { fontSize: 26, fontWeight: 'bold', color: '#0369a1', marginTop: 4 }, // ortahisar-blue-dark
+  tcKn: { fontSize: 14, color: '#64748b', marginTop: 4, fontWeight: '500' },
+  qrCard: { backgroundColor: '#ffffff', borderRadius: 28, padding: 24, alignItems: 'center', shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 24, elevation: 12, borderWidth: 1, borderColor: '#e0f2fe' },
+  securityBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0fdf4', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, marginBottom: 24, borderWidth: 1, borderColor: '#dcfce3' },
   liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#22c55e', marginRight: 8 },
-  liveTimeText: { fontSize: 12, fontWeight: 'bold', color: '#334155' },
-  qrContainer: { padding: 12, backgroundColor: '#ffffff', borderRadius: 16, borderWidth: 1, borderColor: '#e2e8f0' },
-  timerContainer: { marginTop: 20 },
+  liveTimeText: { fontSize: 12, fontWeight: 'bold', color: '#16a34a' },
+  qrContainer: { padding: 16, backgroundColor: '#ffffff', borderRadius: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 5 },
+  timerContainer: { marginTop: 24 },
   timerText: { fontSize: 13, color: '#64748b' },
-  secondsText: { fontWeight: 'bold', color: '#0284c7' },
-  refreshButton: { marginTop: 14, paddingVertical: 8, paddingHorizontal: 16 },
-  refreshButtonText: { color: '#0284c7', fontWeight: '600', fontSize: 13 },
-  logoutButton: { marginTop: 30, alignSelf: 'center' },
-  logoutText: { color: '#ef4444', fontSize: 14, fontWeight: '600' },
+  secondsText: { fontWeight: 'bold', color: '#0ea5e9' },
+  refreshButton: { marginTop: 16, paddingVertical: 10, paddingHorizontal: 20, backgroundColor: '#f0f9ff', borderRadius: 12 },
+  refreshButtonText: { color: '#0ea5e9', fontWeight: '700', fontSize: 14 },
+  logoutButton: { marginTop: 40, alignSelf: 'center', padding: 12 },
+  logoutText: { color: '#ef4444', fontSize: 15, fontWeight: '600' },
 });

@@ -125,14 +125,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a', justifyContent: 'center', padding: 20 },
-  card: { backgroundColor: '#1e293b', borderRadius: 20, padding: 24, borderWidth: 1, borderColor: '#334155' },
-  badge: { color: '#38bdf8', fontSize: 11, fontWeight: '800', letterSpacing: 1, marginBottom: 4 },
-  title: { fontSize: 26, fontWeight: 'bold', color: '#ffffff' },
-  subtitle: { fontSize: 13, color: '#94a3b8', marginBottom: 20, marginTop: 2 },
-  input: { backgroundColor: '#0f172a', borderRadius: 12, padding: 14, color: '#ffffff', marginBottom: 12, borderWidth: 1, borderColor: '#334155', fontSize: 15 },
-  button: { backgroundColor: '#0284c7', borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 8 },
+  container: { flex: 1, backgroundColor: '#f0f9ff', justifyContent: 'center', padding: 20 }, // sky-50 background
+  card: { backgroundColor: '#ffffff', borderRadius: 28, padding: 24, borderWidth: 1, borderColor: '#e0f2fe', shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 },
+  badge: { color: '#0ea5e9', fontSize: 11, fontWeight: '800', letterSpacing: 1, marginBottom: 8 },
+  title: { fontSize: 26, fontWeight: 'bold', color: '#0369a1' },
+  subtitle: { fontSize: 13, color: '#64748b', marginBottom: 24, marginTop: 4, lineHeight: 20 },
+  input: { backgroundColor: '#f8fafc', borderRadius: 16, padding: 14, color: '#0f172a', marginBottom: 16, borderWidth: 1, borderColor: '#e2e8f0', fontSize: 15 },
+  button: { backgroundColor: '#0ea5e9', borderRadius: 16, padding: 16, alignItems: 'center', marginTop: 8, shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
   buttonText: { color: '#ffffff', fontWeight: 'bold', fontSize: 16 },
-  linkButton: { marginTop: 16, alignItems: 'center', padding: 8 },
-  linkText: { color: '#38bdf8', fontSize: 14, fontWeight: '600' },
+  linkButton: { marginTop: 20, alignItems: 'center', padding: 8 },
+  linkText: { color: '#0369a1', fontSize: 13, fontWeight: '600' },
 });

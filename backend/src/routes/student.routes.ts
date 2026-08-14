@@ -32,7 +32,7 @@ router.get('/merchants', async (req: Request, res: Response) => {
     const merchants = await prisma.merchantProfile.findMany({
       where: whereClause,
       include: {
-        StoreLocation: {
+        storeLocations: {
           orderBy: { isMain: 'desc' }
         }
       },

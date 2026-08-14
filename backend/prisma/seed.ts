@@ -162,6 +162,595 @@ async function main() {
     },
   });
 
+
+  const studentUser10 = await prisma.user.upsert({
+    where: { email: 'ogr10@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr10@ogr.ktu.edu.tr',
+      phoneNumber: '05381205960',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '99607963754' },
+    update: {},
+    create: {
+      userId: studentUser10.id,
+      tcKn: '12692349933',
+      firstName: 'Veli',
+      lastName: 'Doğan',
+      birthYear: 2003,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-616733',
+    },
+  });
+
+  const studentUser11 = await prisma.user.upsert({
+    where: { email: 'ogr11@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr11@ogr.ktu.edu.tr',
+      phoneNumber: '05353187249',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '57735674210' },
+    update: {},
+    create: {
+      userId: studentUser11.id,
+      tcKn: '50528860097',
+      firstName: 'Serkan',
+      lastName: 'Doğan',
+      birthYear: 2000,
+      schoolName: 'Ortahisar Lisesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-61852',
+    },
+  });
+
+  const studentUser12 = await prisma.user.upsert({
+    where: { email: 'ogr12@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr12@ogr.ktu.edu.tr',
+      phoneNumber: '05341347218',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '40442097102' },
+    update: {},
+    create: {
+      userId: studentUser12.id,
+      tcKn: '64101556880',
+      firstName: 'Ali',
+      lastName: 'Çelik',
+      birthYear: 2002,
+      schoolName: 'Karadeniz Teknik Üniversitesi (KTÜ)',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-618470',
+    },
+  });
+
+  const studentUser13 = await prisma.user.upsert({
+    where: { email: 'ogr13@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr13@ogr.ktu.edu.tr',
+      phoneNumber: '05363426689',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '21579433596' },
+    update: {},
+    create: {
+      userId: studentUser13.id,
+      tcKn: '31650485836',
+      firstName: 'Veli',
+      lastName: 'Kaya',
+      birthYear: 1999,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-617920',
+    },
+  });
+
+  const studentUser14 = await prisma.user.upsert({
+    where: { email: 'ogr14@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr14@ogr.ktu.edu.tr',
+      phoneNumber: '05358524292',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '89823201607' },
+    update: {},
+    create: {
+      userId: studentUser14.id,
+      tcKn: '36503262769',
+      firstName: 'Elif',
+      lastName: 'Kaya',
+      birthYear: 2003,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-618559',
+    },
+  });
+
+  const studentUser15 = await prisma.user.upsert({
+    where: { email: 'ogr15@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr15@ogr.ktu.edu.tr',
+      phoneNumber: '05327245920',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '66209535767' },
+    update: {},
+    create: {
+      userId: studentUser15.id,
+      tcKn: '16299014944',
+      firstName: 'Serkan',
+      lastName: 'Yıldız',
+      birthYear: 1999,
+      schoolName: 'Karadeniz Teknik Üniversitesi (KTÜ)',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-614729',
+    },
+  });
+
+  const studentUser16 = await prisma.user.upsert({
+    where: { email: 'ogr16@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr16@ogr.ktu.edu.tr',
+      phoneNumber: '05355986138',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '84305667190' },
+    update: {},
+    create: {
+      userId: studentUser16.id,
+      tcKn: '92634479475',
+      firstName: 'Ayşe',
+      lastName: 'Yılmaz',
+      birthYear: 2000,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-61345',
+    },
+  });
+
+  const studentUser17 = await prisma.user.upsert({
+    where: { email: 'ogr17@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr17@ogr.ktu.edu.tr',
+      phoneNumber: '05334644179',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '51071220687' },
+    update: {},
+    create: {
+      userId: studentUser17.id,
+      tcKn: '37669201346',
+      firstName: 'Yusuf',
+      lastName: 'Çelik',
+      birthYear: 1999,
+      schoolName: 'Karadeniz Teknik Üniversitesi (KTÜ)',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-618674',
+    },
+  });
+
+  const studentUser18 = await prisma.user.upsert({
+    where: { email: 'ogr18@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr18@ogr.ktu.edu.tr',
+      phoneNumber: '05380521291',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '57366713187' },
+    update: {},
+    create: {
+      userId: studentUser18.id,
+      tcKn: '33962705556',
+      firstName: 'Hakan',
+      lastName: 'Şahin',
+      birthYear: 1999,
+      schoolName: 'Trabzon Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-616487',
+    },
+  });
+
+  const studentUser19 = await prisma.user.upsert({
+    where: { email: 'ogr19@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr19@ogr.ktu.edu.tr',
+      phoneNumber: '05398814734',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '48232735293' },
+    update: {},
+    create: {
+      userId: studentUser19.id,
+      tcKn: '50451337094',
+      firstName: 'Zeynep',
+      lastName: 'Doğan',
+      birthYear: 2001,
+      schoolName: 'Ortahisar Lisesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-613454',
+    },
+  });
+
+  const studentUser20 = await prisma.user.upsert({
+    where: { email: 'ogr20@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr20@ogr.ktu.edu.tr',
+      phoneNumber: '05344705614',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '98470473054' },
+    update: {},
+    create: {
+      userId: studentUser20.id,
+      tcKn: '54569944322',
+      firstName: 'Ali',
+      lastName: 'Demir',
+      birthYear: 2004,
+      schoolName: 'Trabzon Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-614345',
+    },
+  });
+
+  const studentUser21 = await prisma.user.upsert({
+    where: { email: 'ogr21@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr21@ogr.ktu.edu.tr',
+      phoneNumber: '05317695869',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '72489448953' },
+    update: {},
+    create: {
+      userId: studentUser21.id,
+      tcKn: '72885871886',
+      firstName: 'Serkan',
+      lastName: 'Çetin',
+      birthYear: 2005,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-619949',
+    },
+  });
+
+  const studentUser22 = await prisma.user.upsert({
+    where: { email: 'ogr22@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr22@ogr.ktu.edu.tr',
+      phoneNumber: '05333422049',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '95540584080' },
+    update: {},
+    create: {
+      userId: studentUser22.id,
+      tcKn: '52029461825',
+      firstName: 'Can',
+      lastName: 'Aydın',
+      birthYear: 2002,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-611905',
+    },
+  });
+
+  const studentUser23 = await prisma.user.upsert({
+    where: { email: 'ogr23@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr23@ogr.ktu.edu.tr',
+      phoneNumber: '05324996323',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '16605433588' },
+    update: {},
+    create: {
+      userId: studentUser23.id,
+      tcKn: '76203844129',
+      firstName: 'Yusuf',
+      lastName: 'Kılıç',
+      birthYear: 2001,
+      schoolName: 'Ortahisar Lisesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-612095',
+    },
+  });
+
+  const studentUser24 = await prisma.user.upsert({
+    where: { email: 'ogr24@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr24@ogr.ktu.edu.tr',
+      phoneNumber: '05317932546',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '52755735143' },
+    update: {},
+    create: {
+      userId: studentUser24.id,
+      tcKn: '69261388799',
+      firstName: 'Murat',
+      lastName: 'Kılıç',
+      birthYear: 2003,
+      schoolName: 'Karadeniz Teknik Üniversitesi (KTÜ)',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-612753',
+    },
+  });
+
+  const studentUser25 = await prisma.user.upsert({
+    where: { email: 'ogr25@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr25@ogr.ktu.edu.tr',
+      phoneNumber: '05364529652',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '13620873170' },
+    update: {},
+    create: {
+      userId: studentUser25.id,
+      tcKn: '19793083513',
+      firstName: 'Veli',
+      lastName: 'Kılıç',
+      birthYear: 2002,
+      schoolName: 'Ortahisar Lisesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-616509',
+    },
+  });
+
+  const studentUser26 = await prisma.user.upsert({
+    where: { email: 'ogr26@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr26@ogr.ktu.edu.tr',
+      phoneNumber: '05381696204',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '34525655865' },
+    update: {},
+    create: {
+      userId: studentUser26.id,
+      tcKn: '30225290604',
+      firstName: 'Veli',
+      lastName: 'Özdemir',
+      birthYear: 2003,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-617510',
+    },
+  });
+
+  const studentUser27 = await prisma.user.upsert({
+    where: { email: 'ogr27@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr27@ogr.ktu.edu.tr',
+      phoneNumber: '05350175328',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '30647704371' },
+    update: {},
+    create: {
+      userId: studentUser27.id,
+      tcKn: '84841019497',
+      firstName: 'Murat',
+      lastName: 'Aydın',
+      birthYear: 2004,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-614984',
+    },
+  });
+
+  const studentUser28 = await prisma.user.upsert({
+    where: { email: 'ogr28@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr28@ogr.ktu.edu.tr',
+      phoneNumber: '05342590894',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '12964937117' },
+    update: {},
+    create: {
+      userId: studentUser28.id,
+      tcKn: '72042121932',
+      firstName: 'Mehmet',
+      lastName: 'Kaya',
+      birthYear: 2004,
+      schoolName: 'Avrasya Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-611601',
+    },
+  });
+
+  const studentUser29 = await prisma.user.upsert({
+    where: { email: 'ogr29@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr29@ogr.ktu.edu.tr',
+      phoneNumber: '05396596238',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '55365170618' },
+    update: {},
+    create: {
+      userId: studentUser29.id,
+      tcKn: '22808688790',
+      firstName: 'Serkan',
+      lastName: 'Demir',
+      birthYear: 2000,
+      schoolName: 'Ortahisar Lisesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-619586',
+    },
+  });
+
+  const studentUser30 = await prisma.user.upsert({
+    where: { email: 'ogr30@ogr.ktu.edu.tr' },
+    update: {},
+    create: {
+      role: 'STUDENT',
+      email: 'ogr30@ogr.ktu.edu.tr',
+      phoneNumber: '05355068972',
+      passwordHash: '$2a$10$yMCQcqvPiOD5YAYHy6cWc.omGq4aIqbvTZN2HjkzkHDZYcSdDKJBa',
+    },
+  });
+
+  await prisma.studentProfile.upsert({
+    where: { tcKn: '76482152986' },
+    update: {},
+    create: {
+      userId: studentUser30.id,
+      tcKn: '44873881707',
+      firstName: 'Osman',
+      lastName: 'Kılıç',
+      birthYear: 2005,
+      schoolName: 'Trabzon Üniversitesi',
+      district: 'Ortahisar',
+      isEligible: true,
+      statusReason: 'ACTIVE',
+      edevletRefCode: 'EDEVLET-REF-612277',
+    },
+  });
+
   // 3. Örnek Esnaflar Listesi (Ortahisar / Trabzon yerel işletmeleri)
   const esnaflarData = [
     {

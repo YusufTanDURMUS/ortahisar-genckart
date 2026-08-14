@@ -101,7 +101,9 @@ export default function EsnafTarayiciPage() {
   const handleLogout = () => {
     localStorage.removeItem('merchant_token');
     localStorage.removeItem('merchant_info');
-    router.push('/esnaf/login');
+    document.cookie = 'token=; Max-Age=0; path=/';
+    document.cookie = 'user_role=; Max-Age=0; path=/';
+    window.location.href = '/esnaf/login';
   };
 
   return (

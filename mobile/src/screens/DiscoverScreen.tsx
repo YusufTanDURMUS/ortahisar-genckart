@@ -20,7 +20,7 @@ interface Merchant {
   category: string;
   address: string;
   defaultDiscountRate: number;
-  StoreLocation: Branch[];
+  storeLocations: Branch[];
 }
 
 const CATEGORIES = ['TÜMÜ', 'Kırtasiye', 'Kafe/Restoran', 'Market', 'Giyim', 'Teknoloji', 'Kuaför/Berber', 'Spor/Eğlence', 'Kozmetik', 'Diğer'];
@@ -81,7 +81,7 @@ export const DiscoverScreen: React.FC<{ user: any }> = ({ user }) => {
   };
 
   const renderMerchant = ({ item }: { item: Merchant }) => {
-    const branches = item.StoreLocation || [];
+    const branches = item.storeLocations || [];
     const isExpanded = expandedId === item.id;
 
     return (
@@ -203,75 +203,79 @@ export const DiscoverScreen: React.FC<{ user: any }> = ({ user }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a' },
+  container: { flex: 1, backgroundColor: '#f8fafc' }, // slate-50
   header: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
+  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#0f172a' }, // slate-900
   headerSubtitle: { fontSize: 13, color: '#64748b', marginTop: 2 },
   searchInput: {
     marginHorizontal: 16, marginBottom: 12,
-    backgroundColor: '#1e293b', borderRadius: 12, padding: 12,
-    color: '#fff', borderWidth: 1, borderColor: '#334155', fontSize: 14,
+    backgroundColor: '#ffffff', borderRadius: 16, padding: 12,
+    color: '#0f172a', borderWidth: 1, borderColor: '#e2e8f0', fontSize: 14,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
   },
   categoriesWrapper: { marginBottom: 12, paddingLeft: 16, height: 46 },
   categoryChip: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#1e293b', paddingHorizontal: 12, paddingVertical: 8,
-    borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#334155',
+    backgroundColor: '#ffffff', paddingHorizontal: 12, paddingVertical: 8,
+    borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#e2e8f0',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1,
   },
-  activeCategoryChip: { backgroundColor: '#0284c7', borderColor: '#0284c7' },
+  activeCategoryChip: { backgroundColor: '#0ea5e9', borderColor: '#0ea5e9' }, // ortahisar-blue
   categoryChipIcon: { fontSize: 14, marginRight: 4 },
-  categoryChipText: { color: '#94a3b8', fontWeight: '600', fontSize: 13 },
+  categoryChipText: { color: '#64748b', fontWeight: '600', fontSize: 13 },
   activeCategoryText: { color: '#fff' },
   listContent: { paddingHorizontal: 16, paddingBottom: 24 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
   loadingText: { color: '#64748b', fontSize: 14 },
   merchantCard: {
-    backgroundColor: '#1e293b', borderRadius: 16, marginBottom: 14,
-    borderWidth: 1, borderColor: '#334155', overflow: 'hidden',
+    backgroundColor: '#ffffff', borderRadius: 20, marginBottom: 14,
+    borderWidth: 1, borderColor: '#e2e8f0', overflow: 'hidden',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 4,
   },
   cardHeader: {
     flexDirection: 'row', alignItems: 'center',
     padding: 14, gap: 12,
   },
   categoryIconBadge: {
-    width: 46, height: 46, backgroundColor: '#0f172a',
+    width: 46, height: 46, backgroundColor: '#f0f9ff', // sky-50
     borderRadius: 12, justifyContent: 'center', alignItems: 'center',
-    borderWidth: 1, borderColor: '#334155',
+    borderWidth: 1, borderColor: '#bae6fd', // sky-200
   },
   categoryIconText: { fontSize: 22 },
   titleContainer: { flex: 1 },
-  businessName: { fontSize: 17, fontWeight: 'bold', color: '#fff' },
-  categoryText: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
-  branchCountText: { fontSize: 11, color: '#38bdf8', marginTop: 3, fontWeight: '600' },
+  businessName: { fontSize: 17, fontWeight: 'bold', color: '#0f172a' },
+  categoryText: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  branchCountText: { fontSize: 11, color: '#0ea5e9', marginTop: 3, fontWeight: '600' },
   discountBadge: {
-    backgroundColor: '#166534', paddingHorizontal: 10, paddingVertical: 8,
-    borderRadius: 10, alignItems: 'center', minWidth: 52,
+    backgroundColor: '#f0fdf4', paddingHorizontal: 10, paddingVertical: 8, // green-50
+    borderRadius: 12, alignItems: 'center', minWidth: 52,
+    borderWidth: 1, borderColor: '#bbf7d0', // green-200
   },
-  discountText: { color: '#4ade80', fontWeight: 'bold', fontSize: 15 },
-  discountLabel: { color: '#4ade80', fontSize: 10, fontWeight: '600', opacity: 0.85 },
+  discountText: { color: '#16a34a', fontWeight: 'bold', fontSize: 15 },
+  discountLabel: { color: '#16a34a', fontSize: 10, fontWeight: '600', opacity: 0.85 },
   collapsedAddress: { paddingHorizontal: 14, paddingBottom: 12 },
-  expandHint: { color: '#38bdf8', fontSize: 11, marginTop: 4, fontWeight: '600' },
-  addressText: { color: '#94a3b8', fontSize: 13, lineHeight: 18, marginBottom: 8 },
+  expandHint: { color: '#0ea5e9', fontSize: 11, marginTop: 4, fontWeight: '600' },
+  addressText: { color: '#64748b', fontSize: 13, lineHeight: 18, marginBottom: 8 },
   branchesContainer: {
-    borderTopWidth: 1, borderTopColor: '#334155', padding: 12, gap: 10,
+    borderTopWidth: 1, borderTopColor: '#f1f5f9', padding: 12, gap: 10, backgroundColor: '#f8fafc',
   },
   branchItem: {
-    backgroundColor: '#0f172a', borderRadius: 10, padding: 12,
-    borderWidth: 1, borderColor: '#1e293b',
+    backgroundColor: '#ffffff', borderRadius: 12, padding: 12,
+    borderWidth: 1, borderColor: '#e2e8f0',
   },
-  mainBranchItem: { borderColor: '#0284c7', borderWidth: 1.5 },
+  mainBranchItem: { borderColor: '#38bdf8', borderWidth: 1.5 },
   branchHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: 8 },
-  branchName: { color: '#fff', fontSize: 14, fontWeight: 'bold', flex: 1 },
+  branchName: { color: '#0f172a', fontSize: 14, fontWeight: 'bold', flex: 1 },
   mainBadge: {
-    backgroundColor: 'rgba(2, 132, 199, 0.2)', paddingHorizontal: 8,
-    paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#0284c7',
+    backgroundColor: '#f0f9ff', paddingHorizontal: 8,
+    paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#bae6fd',
   },
-  mainBadgeText: { color: '#38bdf8', fontSize: 10, fontWeight: '700' },
+  mainBadgeText: { color: '#0ea5e9', fontSize: 10, fontWeight: '700' },
   mapButton: {
-    backgroundColor: 'rgba(56, 189, 248, 0.08)', paddingVertical: 8,
-    borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.2)',
+    backgroundColor: '#f0f9ff', paddingVertical: 8,
+    borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#bae6fd',
   },
-  mapButtonText: { color: '#38bdf8', fontWeight: '600', fontSize: 13 },
+  mapButtonText: { color: '#0ea5e9', fontWeight: '600', fontSize: 13 },
   emptyContainer: { paddingTop: 60, alignItems: 'center', gap: 10 },
   emptyIcon: { fontSize: 48 },
   emptyText: { color: '#64748b', fontSize: 16, textAlign: 'center' },
