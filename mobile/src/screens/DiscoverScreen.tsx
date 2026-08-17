@@ -9,6 +9,7 @@ interface Branch {
   id: string;
   title: string;
   address: string;
+  symbol?: string | null;
   isMain: boolean;
   latitude?: number | null;
   longitude?: number | null;
@@ -19,6 +20,7 @@ interface Merchant {
   businessName: string;
   category: string;
   address: string;
+  symbol?: string | null;
   defaultDiscountRate: number;
   storeLocations: Branch[];
 }
@@ -100,7 +102,9 @@ export const DiscoverScreen: React.FC<{ user: any }> = ({ user }) => {
           activeOpacity={0.8}
         >
           <View style={styles.categoryIconBadge}>
-            <Text style={styles.categoryIconText}>{CATEGORY_ICONS[item.category] || '🏪'}</Text>
+            <Text style={styles.categoryIconText}>
+              {item.symbol || CATEGORY_ICONS[item.category] || '🏪'}
+            </Text>
           </View>
           <View style={styles.titleContainer}>
             <Text style={styles.businessName}>{item.businessName}</Text>
@@ -145,7 +149,7 @@ export const DiscoverScreen: React.FC<{ user: any }> = ({ user }) => {
               <View key={b.id} style={styles.branchRow}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.branchTitle}>
-                    {b.isMain ? '⭐ ' : '🏢 '}
+                    {b.symbol || (b.isMain ? '⭐' : '🏢')}{' '}
                     {b.title}
                   </Text>
                   <Text style={styles.branchAddress}>{b.address}</Text>

@@ -42,6 +42,7 @@ export default function EsnafPWADashboard() {
     apartmentNo: '',
     fullAddress: '',
     customStreet: '',
+    symbol: '🏢',
   });
 
   useEffect(() => {
@@ -96,6 +97,7 @@ export default function EsnafPWADashboard() {
         payload.street = reqForm.street === 'Diğer' ? reqForm.customStreet : reqForm.street;
         payload.buildingNo = reqForm.buildingNo;
         payload.apartmentNo = reqForm.apartmentNo;
+        payload.symbol = reqForm.symbol || null;
         payload.fullAddress = reqForm.fullAddress || `${reqForm.neighborhood} Mah. ${payload.street} No:${reqForm.buildingNo} ${reqForm.apartmentNo ? `Daire:${reqForm.apartmentNo}` : ''} ${reqForm.district}/${reqForm.city}`;
       }
       
@@ -243,7 +245,7 @@ export default function EsnafPWADashboard() {
               className="px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 text-xs font-bold flex items-center gap-1.5 hover:bg-teal-100 transition-all shadow-sm"
               title="Aktif Şubeyi Değiştir"
             >
-              <Store size={14} />
+              <span>{activeBranch.symbol || '🏢'}</span>
               <span className="hidden sm:inline">{activeBranch.title}</span>
               <span className="sm:hidden">Şube</span>
             </button>
@@ -605,14 +607,54 @@ export default function EsnafPWADashboard() {
                   )}
 
                   {reqType === 'NEW_LOCATION' && (
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Yeni Şube Adı</label>
-                      <input 
-                        type="text" required placeholder="Örn: Meydan Şubesi"
-                        value={reqForm.targetLocationTitle}
-                        onChange={e => setReqForm({...reqForm, targetLocationTitle: e.target.value})}
-                        className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500/50 placeholder:text-slate-600"
-                      />
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Yeni Şube Adı</label>
+                        <input 
+                          type="text" required placeholder="Örn: Meydan Şubesi"
+                          value={reqForm.targetLocationTitle}
+                          onChange={e => setReqForm({...reqForm, targetLocationTitle: e.target.value})}
+                          className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500/50 placeholder:text-slate-600"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Şube Sembolü / Simgesi</label>
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                          {['🏢', '📍', '⭐', '☕', '📚', '🛒', '🛍️', '🏖️'].map((em) => (
+                            <button
+                              key={em}
+                              type="button"
+                              onClick={() => setReqForm({ ...reqForm, symbol: em })}
+                              className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-all ${
+                                reqForm.symbol === em
+                                  ? 'bg-sky-500 text-white ring-2 ring-sky-300'
+                                  : 'bg-[#0f1923] border border-white/10 hover:bg-white/5'
+                              }`}
+                            >
+                              {em}
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => setReqForm({ ...reqForm, symbol: '' })}
+                            className={`px-2 h-7 rounded-lg text-[10px] font-bold transition-all ${
+                              !reqForm.symbol
+                                ? 'bg-slate-700 text-white'
+                                : 'bg-[#0f1923] border border-white/10 text-slate-400 hover:bg-white/5'
+                            }`}
+                          >
+                            Boş
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={reqForm.symbol}
+                          onChange={e => setReqForm({ ...reqForm, symbol: e.target.value })}
+                          placeholder="Örn: 🏢 veya boş"
+                          className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-sky-500/50 placeholder:text-slate-600"
+                        />
+                      </div>
                     </div>
                   )}
 
@@ -755,7 +797,9 @@ export default function EsnafPWADashboard() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="pr-2">
-                        <p className={`font-bold text-sm ${activeBranch?.id === loc.id ? 'text-sky-400' : 'text-white'}`}>{loc.title}</p>
+                        <p className={`font-bold text-sm ${activeBranch?.id === loc.id ? 'text-sky-400' : 'text-white'}`}>
+                          {loc.symbol || (loc.isMain ? '⭐' : '🏢')} {loc.title}
+                        </p>
                         <p className="text-xs text-slate-500 mt-1 line-clamp-1 flex items-center gap-1">
                           <MapPin size={10} /> {loc.address}
                         </p>

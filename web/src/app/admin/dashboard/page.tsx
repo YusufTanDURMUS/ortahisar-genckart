@@ -12,10 +12,16 @@ interface MerchantItem {
   category: string;
   address: string | null;
   taxNumber: string | null;
+  symbol: string | null;
   defaultDiscountRate: number;
   qrCodeIdentifier: string;
   createdAt: string;
+  totalSavedAmount?: number;
+  totalRevenue?: number;
+  totalDiscountedAmount?: number;
+  transactionCount?: number;
   user?: { id: string; email: string; phoneNumber: string | null; createdAt: string };
+  storeLocations?: { id: string; title: string; address: string; symbol: string | null; isMain: boolean }[];
 }
 
 interface DiscountRequestItem {
@@ -86,6 +92,7 @@ export default function AdminDashboardPage() {
     customStreet: '',
     buildingNo: '',
     taxNumber: '',
+    symbol: '📚',
     defaultDiscountRate: '15',
     accountMode: 'new' as 'new' | 'existing',
     selectedExistingEmail: '',
@@ -198,6 +205,7 @@ export default function AdminDashboardPage() {
           category: form.category,
           address: fullAddress,
           taxNumber: form.taxNumber,
+          symbol: form.symbol || null,
           defaultDiscountRate: form.defaultDiscountRate,
           email: targetEmail,
           phoneNumber: form.phoneNumber,
@@ -217,6 +225,7 @@ export default function AdminDashboardPage() {
           customStreet: '',
           buildingNo: '',
           taxNumber: '',
+          symbol: '📚',
           defaultDiscountRate: '15',
           accountMode: 'new',
           selectedExistingEmail: '',
@@ -517,37 +526,74 @@ export default function AdminDashboardPage() {
               merchants.map((m) => (
                 <div
                   key={m.id}
-                  className="bg-white/90 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-sky-100 hover:border-sky-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm hover:shadow-md group"
+                  className="bg-white/90 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-sky-100 hover:border-sky-300 transition-all flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-sm hover:shadow-md group"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-1.5">
-                      <h3 className="text-base font-bold text-slate-900 truncate">{m.businessName}</h3>
-                      <span className="flex-shrink-0 bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-200">
-                        Aktif
-                      </span>
-                      <span className="flex-shrink-0 bg-sky-50 text-sky-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-sky-200">
-                        %{m.defaultDiscountRate} İndirim
-                      </span>
+                  <div className="flex items-start gap-3.5 flex-1 min-w-0">
+                    {/* Symbol / Emoji Avatar */}
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-200 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm">
+                      {m.symbol || (m.category === 'Kırtasiye' ? '📚' : m.category === 'Kafe/Restoran' ? '☕' : m.category === 'Market' ? '🛒' : m.category === 'Giyim' ? '👗' : m.category === 'Teknoloji' ? '💻' : m.category === 'Kuaför/Berber' ? '✂️' : m.category === 'Spor/Eğlence' ? '🏋️' : m.category === 'Kozmetik' ? '💄' : '🏪')}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 mt-1">
-                      <span className="flex items-center gap-1.5">
-                        <span>📍</span>
-                        <span className="truncate max-w-xs">{m.address || 'Ortahisar/Trabzon'}</span>
-                      </span>
-                      {m.user?.email && (
-                        <span className="flex items-center gap-1.5">
-                          <span>✉️</span>
-                          <span className="truncate">{m.user.email}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h3 className="text-base font-bold text-slate-900 truncate">{m.businessName}</h3>
+                        <span className="flex-shrink-0 bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                          Aktif
                         </span>
-                      )}
-                      <span>
-                        VKN: <strong className="text-slate-700">{m.taxNumber || '—'}</strong>
-                      </span>
+                        <span className="flex-shrink-0 bg-sky-50 text-sky-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-sky-200">
+                          %{m.defaultDiscountRate} İndirim
+                        </span>
+                        <span className="flex-shrink-0 bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200">
+                          {m.category}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 mt-1">
+                        <span className="flex items-center gap-1.5">
+                          <span>📍</span>
+                          <span className="truncate max-w-xs">{m.address || 'Ortahisar/Trabzon'}</span>
+                        </span>
+                        {m.user?.email && (
+                          <span className="flex items-center gap-1.5">
+                            <span>✉️</span>
+                            <span className="truncate">{m.user.email}</span>
+                          </span>
+                        )}
+                        <span>
+                          VKN: <strong className="text-slate-700">{m.taxNumber || '—'}</strong>
+                        </span>
+                      </div>
+
+                      {/* ── İŞLEM VE TOPLAM İNDİRİM TUTARI ŞERİDİ ── */}
+                      <div className="flex flex-wrap items-center gap-2.5 mt-3 pt-2.5 border-t border-slate-100 text-xs">
+                        <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-3 py-1 rounded-xl border border-emerald-200/80 font-bold shadow-xs">
+                          <span>💰</span>
+                          <span>Uygulanan Toplam İndirim:</span>
+                          <span className="text-emerald-950 font-black">
+                            ₺{(m.totalSavedAmount || 0).toLocaleString('tr-TR', { minimumFractionDigits: 0 })}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 bg-sky-50 text-sky-800 px-3 py-1 rounded-xl border border-sky-200/80 font-bold shadow-xs">
+                          <span>📊</span>
+                          <span>İşlem:</span>
+                          <span className="text-sky-950 font-black">{m.transactionCount || 0} Adet</span>
+                        </div>
+
+                        {m.totalRevenue ? (
+                          <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-800 px-3 py-1 rounded-xl border border-indigo-200/80 font-bold shadow-xs">
+                            <span>🛒</span>
+                            <span>Ciro:</span>
+                            <span className="text-indigo-950 font-black">
+                              ₺{m.totalRevenue.toLocaleString('tr-TR', { minimumFractionDigits: 0 })}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-end sm:self-center">
+                  <div className="flex items-center gap-2 self-end lg:self-center">
                     <button
                       onClick={() => handleDeleteMerchant(m.id, m.businessName)}
                       disabled={actionLoading === m.id}
@@ -761,6 +807,47 @@ export default function AdminDashboardPage() {
                       )}
                     </select>
                   </div>
+                </div>
+
+                {/* İşletme Sembolü / İkonu Seçimi */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase tracking-widest">
+                    İşletme Sembolü / Simgesi (İsteğe Bağlı)
+                  </label>
+                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                    {['📚', '☕', '🛒', '🛍️', '💻', '✂️', '🏋️', '💄', '🍕', '🎨', '🌟', '🏢'].map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => setForm({ ...form, symbol: emoji })}
+                        className={`w-8 h-8 rounded-lg text-base flex items-center justify-center transition-all ${
+                          form.symbol === emoji
+                            ? 'bg-sky-500 text-white shadow-sm ring-2 ring-sky-300'
+                            : 'bg-white border border-slate-200 hover:bg-sky-50'
+                        }`}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, symbol: '' })}
+                      className={`px-2.5 h-8 rounded-lg text-[10px] font-bold transition-all ${
+                        !form.symbol
+                          ? 'bg-slate-700 text-white'
+                          : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'
+                      }`}
+                    >
+                      Boş Bırak
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={form.symbol}
+                    onChange={(e) => setForm({ ...form, symbol: e.target.value })}
+                    className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-slate-800 text-xs focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-all placeholder:text-slate-400 font-medium"
+                    placeholder="Özel emoji veya sembol girebilirsiniz (Örn: ☕ veya boş)"
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

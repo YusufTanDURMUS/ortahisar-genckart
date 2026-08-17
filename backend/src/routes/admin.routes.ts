@@ -9,16 +9,49 @@ const router = Router();
 router.use(verifyTokenMiddleware(['ADMIN']));
 
 // ──────────────────────────────────────────────
-// 1. Tüm Esnafları Listele
+// 1. Tüm Esnafları Listele (İşlem & İndirim İstatistikleriyle Birlikte)
 // GET /api/v1/admin/merchants
 // ──────────────────────────────────────────────
 router.get('/merchants', async (req: Request, res: Response) => {
   try {
     const merchants = await prisma.merchantProfile.findMany({
-      include: { user: { select: { id: true, email: true, phoneNumber: true, createdAt: true } } },
+      include: {
+        user: { select: { id: true, email: true, phoneNumber: true, createdAt: true } },
+        storeLocations: true,
+        transactions: {
+          where: { status: 'COMPLETED' },
+          select: { savedAmount: true, originalAmount: true, discountedAmount: true }
+        }
+      },
       orderBy: { createdAt: 'desc' }
     });
-    res.json({ status: 'SUCCESS', data: merchants });
+
+    const formatted = merchants.map((m) => {
+      const totalSavedAmount = m.transactions.reduce((acc, t) => acc + (t.savedAmount || 0), 0);
+      const totalRevenue = m.transactions.reduce((acc, t) => acc + (t.originalAmount || 0), 0);
+      const totalDiscountedAmount = m.transactions.reduce((acc, t) => acc + (t.discountedAmount || 0), 0);
+      const transactionCount = m.transactions.length;
+
+      return {
+        id: m.id,
+        businessName: m.businessName,
+        category: m.category,
+        address: m.address,
+        taxNumber: m.taxNumber,
+        symbol: m.symbol,
+        defaultDiscountRate: m.defaultDiscountRate,
+        qrCodeIdentifier: m.qrCodeIdentifier,
+        createdAt: m.createdAt,
+        user: m.user,
+        storeLocations: m.storeLocations,
+        totalSavedAmount,
+        totalRevenue,
+        totalDiscountedAmount,
+        transactionCount
+      };
+    });
+
+    res.json({ status: 'SUCCESS', data: formatted });
   } catch (error: any) {
     res.status(500).json({ status: 'ERROR', message: error.message });
   }
@@ -30,7 +63,7 @@ router.get('/merchants', async (req: Request, res: Response) => {
 // ──────────────────────────────────────────────
 router.post('/merchants', async (req: Request, res: Response) => {
   try {
-    const { businessName, category, address, taxNumber, defaultDiscountRate, email, password, phoneNumber } = req.body;
+    const { businessName, category, address, taxNumber, symbol, defaultDiscountRate, email, password, phoneNumber } = req.body;
 
     if (!businessName || !category || !email) {
       return res.status(400).json({
@@ -69,6 +102,7 @@ router.post('/merchants', async (req: Request, res: Response) => {
             category,
             address: address || user.merchantProfile.address,
             taxNumber: taxNumber || user.merchantProfile.taxNumber,
+            symbol: symbol !== undefined ? symbol : user.merchantProfile.symbol,
             defaultDiscountRate: Number(defaultDiscountRate) || user.merchantProfile.defaultDiscountRate
           }
         });
@@ -80,6 +114,7 @@ router.post('/merchants', async (req: Request, res: Response) => {
             category,
             address: address || null,
             taxNumber: taxNumber || null,
+            symbol: symbol || null,
             defaultDiscountRate: Number(defaultDiscountRate) || 15.0
           }
         });
@@ -107,6 +142,7 @@ router.post('/merchants', async (req: Request, res: Response) => {
               category,
               address: address || null,
               taxNumber: taxNumber || null,
+              symbol: symbol || null,
               defaultDiscountRate: Number(defaultDiscountRate) || 15.0
             }
           }
@@ -125,7 +161,7 @@ router.post('/merchants', async (req: Request, res: Response) => {
       if (existingLoc) {
         await prisma.storeLocation.update({
           where: { id: existingLoc.id },
-          data: { address, title: `${businessName} (Merkez)` }
+          data: { address, title: `${businessName} (Merkez)`, symbol: symbol || null }
         });
       } else {
         await prisma.storeLocation.create({
@@ -133,6 +169,7 @@ router.post('/merchants', async (req: Request, res: Response) => {
             merchantId: merchantProfile.id,
             title: `${businessName} (Merkez)`,
             address,
+            symbol: symbol || null,
             isMain: true
           }
         });

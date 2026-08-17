@@ -70,6 +70,7 @@ model MerchantProfile {
   category            String   // Kategori (Kafe, Restoran, Kırtasiye vb.)
   address             String?
   taxNumber           String?  // Vergi Numarası
+  symbol              String?  // İşletme Sembolü/Emojisi (Örn: 📚, ☕, 🛍️, 💻 veya boş)
   
   defaultDiscountRate Float    // Aktif geçerli indirim oranı (Örn: 15.0 -> %15)
   qrCodeIdentifier    String   @unique @default(uuid()) // Kasadaki Statik QR kimliği
@@ -112,6 +113,7 @@ model MerchantRequest {
   buildingNo            String?
   apartmentNo           String?
   fullAddress           String?
+  symbol                String?         // Şube Sembolü (Örn: 📍, 🏢, ⭐)
   latitude              Float?
   longitude             Float?
 
@@ -134,6 +136,7 @@ model StoreLocation {
   
   title             String          // Örn: "Merkez Şube"
   address           String
+  symbol            String?         // Şube Sembolü (Örn: ⭐, 📍, 🏢 veya boş)
   latitude          Float?
   longitude         Float?
   isMain            Boolean         @default(false)

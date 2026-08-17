@@ -308,11 +308,12 @@ async function main() {
         category: 'Kırtasiye',
         address: 'Gazipaşa Cad. No:14 Ortahisar/Trabzon',
         taxNumber: '6100000001',
+        symbol: '📚',
         defaultDiscountRate: 20.0,
       },
       branches: [
-        { title: 'Merkez Şube (Gazipaşa)', address: 'Gazipaşa Cad. No:14 Ortahisar', isMain: true, latitude: 41.0027, longitude: 39.7285 },
-        { title: 'KTÜ Kampüs Şubesi', address: 'KTÜ Kanuni Kampüsü Öğrenci Meydanı', isMain: false, latitude: 40.9958, longitude: 39.7712 },
+        { title: 'Merkez Şube (Gazipaşa)', address: 'Gazipaşa Cad. No:14 Ortahisar', symbol: '⭐', isMain: true, latitude: 41.0027, longitude: 39.7285 },
+        { title: 'KTÜ Kampüs Şubesi', address: 'KTÜ Kanuni Kampüsü Öğrenci Meydanı', symbol: '🎓', isMain: false, latitude: 40.9958, longitude: 39.7712 },
       ],
     },
     {
@@ -324,10 +325,11 @@ async function main() {
         category: 'Kozmetik',
         address: 'Kahramanmaraş Cad. No:28 Ortahisar/Trabzon',
         taxNumber: '6100000002',
+        symbol: '💄',
         defaultDiscountRate: 15.0,
       },
       branches: [
-        { title: 'Maraş Caddesi Merkez', address: 'Kahramanmaraş Cad. No:28 Ortahisar', isMain: true, latitude: 41.0035, longitude: 39.726 },
+        { title: 'Maraş Caddesi Merkez', address: 'Kahramanmaraş Cad. No:28 Ortahisar', symbol: '⭐', isMain: true, latitude: 41.0035, longitude: 39.726 },
       ],
     },
     {
@@ -339,11 +341,12 @@ async function main() {
         category: 'Spor/Eğlence',
         address: 'Kunduracılar Cad. No:5 Ortahisar/Trabzon',
         taxNumber: '6100000003',
+        symbol: '🏋️',
         defaultDiscountRate: 25.0,
       },
       branches: [
-        { title: 'Kunduracılar Şubesi', address: 'Kunduracılar Cad. No:5 Ortahisar', isMain: true, latitude: 41.0048, longitude: 39.7278 },
-        { title: 'Meydan Fitness Center', address: 'Meydan Parkı Arkası No:12 Ortahisar', isMain: false, latitude: 41.006, longitude: 39.729 },
+        { title: 'Kunduracılar Şubesi', address: 'Kunduracılar Cad. No:5 Ortahisar', symbol: '⭐', isMain: true, latitude: 41.0048, longitude: 39.7278 },
+        { title: 'Meydan Fitness Center', address: 'Meydan Parkı Arkası No:12 Ortahisar', symbol: '📍', isMain: false, latitude: 41.006, longitude: 39.729 },
       ],
     },
     {
@@ -355,10 +358,11 @@ async function main() {
         category: 'Kırtasiye',
         address: 'Kalkınma Mah. No:19 Ortahisar/Trabzon',
         taxNumber: '6100000004',
+        symbol: '☕',
         defaultDiscountRate: 15.0,
       },
       branches: [
-        { title: 'Kalkınma Şubesi (KTÜ Kapısı)', address: 'Kalkınma Mah. No:19 Ortahisar', isMain: true, latitude: 40.9982, longitude: 39.765 },
+        { title: 'Kalkınma Şubesi (KTÜ Kapısı)', address: 'Kalkınma Mah. No:19 Ortahisar', symbol: '⭐', isMain: true, latitude: 40.9982, longitude: 39.765 },
       ],
     },
     {
@@ -370,10 +374,11 @@ async function main() {
         category: 'Kafe/Restoran',
         address: 'Uzun Sokak No:42 Ortahisar/Trabzon',
         taxNumber: '6100000005',
+        symbol: '🍕',
         defaultDiscountRate: 10.0,
       },
       branches: [
-        { title: 'Uzun Sokak Şube', address: 'Uzun Sokak No:42 Ortahisar', isMain: true, latitude: 41.0041, longitude: 39.7295 },
+        { title: 'Uzun Sokak Şube', address: 'Uzun Sokak No:42 Ortahisar', symbol: '⭐', isMain: true, latitude: 41.0041, longitude: 39.7295 },
       ],
     },
     {
@@ -385,10 +390,11 @@ async function main() {
         category: 'Teknoloji',
         address: 'Atatürk Alanı Meydan No:8 Ortahisar/Trabzon',
         taxNumber: '6100000006',
+        symbol: '💻',
         defaultDiscountRate: 12.0,
       },
       branches: [
-        { title: 'Meydan Mağazası', address: 'Atatürk Alanı Meydan No:8 Ortahisar', isMain: true, latitude: 41.0055, longitude: 39.7288 },
+        { title: 'Meydan Mağazası', address: 'Atatürk Alanı Meydan No:8 Ortahisar', symbol: '⭐', isMain: true, latitude: 41.0055, longitude: 39.7288 },
       ],
     },
     {
@@ -400,10 +406,11 @@ async function main() {
         category: 'Kuaför/Berber',
         address: 'Çömlekçi Mah. No:3 Ortahisar/Trabzon',
         taxNumber: '6100000007',
+        symbol: '✂️',
         defaultDiscountRate: 30.0,
       },
       branches: [
-        { title: 'Çömlekçi Salonu', address: 'Çömlekçi Mah. No:3 Ortahisar', isMain: true, latitude: 41.007, longitude: 39.734 },
+        { title: 'Çömlekçi Salonu', address: 'Çömlekçi Mah. No:3 Ortahisar', symbol: '⭐', isMain: true, latitude: 41.007, longitude: 39.734 },
       ],
     },
     {
@@ -415,10 +422,11 @@ async function main() {
         category: 'Giyim',
         address: 'Kemerkaya Mah. No:11 Ortahisar/Trabzon',
         taxNumber: '6100000008',
+        symbol: '👗',
         defaultDiscountRate: 18.0,
       },
       branches: [
-        { title: 'Kemerkaya Butik', address: 'Kemerkaya Mah. No:11 Ortahisar', isMain: true, latitude: 41.005, longitude: 39.731 },
+        { title: 'Kemerkaya Butik', address: 'Kemerkaya Mah. No:11 Ortahisar', symbol: '⭐', isMain: true, latitude: 41.005, longitude: 39.731 },
       ],
     },
   ];
@@ -468,6 +476,7 @@ async function main() {
           category: m.profile.category,
           address: m.profile.address,
           taxNumber: m.profile.taxNumber,
+          symbol: m.profile.symbol,
           defaultDiscountRate: m.profile.defaultDiscountRate,
         },
       });
@@ -492,9 +501,19 @@ async function main() {
             merchantId: merchantProfile.id,
             title: b.title,
             address: b.address,
+            symbol: b.symbol,
             isMain: b.isMain,
             latitude: b.latitude,
             longitude: b.longitude,
+          },
+        });
+      } else {
+        await prisma.storeLocation.update({
+          where: { id: existingBranch.id },
+          data: {
+            symbol: b.symbol,
+            address: b.address,
+            isMain: b.isMain,
           },
         });
       }
@@ -508,43 +527,108 @@ async function main() {
   // 4. ÖRNEK İŞLEMLER (TRANSACTIONS)
   // ═══════════════════════════════════════════════════════════
   if (createdStudentProfiles.length > 0 && createdMerchants.length > 0) {
-    const activeStudent = createdStudentProfiles[0];
-    const copyCenter = createdMerchants[0];
-    const gulKozmetik = createdMerchants[1];
-    const adrenalin = createdMerchants[2];
+    const s1 = createdStudentProfiles[0];
+    const s2 = createdStudentProfiles[1] || s1;
+    const s3 = createdStudentProfiles[2] || s1;
 
     const sampleTransactions = [
       {
-        studentId: activeStudent.id,
-        merchantId: copyCenter.id,
-        originalAmount: 250.0,
+        studentId: s1.id,
+        merchantId: createdMerchants[0].id, // Copy Center
+        originalAmount: 350.0,
         discountRate: 20.0,
-        discountedAmount: 200.0,
-        savedAmount: 50.0,
+        discountedAmount: 280.0,
+        savedAmount: 70.0,
         integrationType: 'PWA_SCAN',
         verificationCode: 'ORT-TX-9001',
         status: 'COMPLETED',
       },
       {
-        studentId: activeStudent.id,
-        merchantId: gulKozmetik.id,
-        originalAmount: 400.0,
-        discountRate: 15.0,
-        discountedAmount: 340.0,
-        savedAmount: 60.0,
-        integrationType: 'KEYBOARD_WEDGE',
+        studentId: s2.id,
+        merchantId: createdMerchants[0].id, // Copy Center
+        originalAmount: 180.0,
+        discountRate: 20.0,
+        discountedAmount: 144.0,
+        savedAmount: 36.0,
+        integrationType: 'PWA_SCAN',
         verificationCode: 'ORT-TX-9002',
         status: 'COMPLETED',
       },
       {
-        studentId: activeStudent.id,
-        merchantId: adrenalin.id,
-        originalAmount: 600.0,
-        discountRate: 25.0,
-        discountedAmount: 450.0,
-        savedAmount: 150.0,
-        integrationType: 'PWA_SCAN',
+        studentId: s1.id,
+        merchantId: createdMerchants[1].id, // Gül Kozmetik
+        originalAmount: 520.0,
+        discountRate: 15.0,
+        discountedAmount: 442.0,
+        savedAmount: 78.0,
+        integrationType: 'KEYBOARD_WEDGE',
         verificationCode: 'ORT-TX-9003',
+        status: 'COMPLETED',
+      },
+      {
+        studentId: s3.id,
+        merchantId: createdMerchants[2].id, // Adrenalin Dünyası
+        originalAmount: 1200.0,
+        discountRate: 25.0,
+        discountedAmount: 900.0,
+        savedAmount: 300.0,
+        integrationType: 'PWA_SCAN',
+        verificationCode: 'ORT-TX-9004',
+        status: 'COMPLETED',
+      },
+      {
+        studentId: s1.id,
+        merchantId: createdMerchants[3].id, // Boztepe Kitap
+        originalAmount: 420.0,
+        discountRate: 15.0,
+        discountedAmount: 357.0,
+        savedAmount: 63.0,
+        integrationType: 'PWA_SCAN',
+        verificationCode: 'ORT-TX-9005',
+        status: 'COMPLETED',
+      },
+      {
+        studentId: s2.id,
+        merchantId: createdMerchants[4].id, // Karadeniz Kafe
+        originalAmount: 300.0,
+        discountRate: 10.0,
+        discountedAmount: 270.0,
+        savedAmount: 30.0,
+        integrationType: 'KEYBOARD_WEDGE',
+        verificationCode: 'ORT-TX-9006',
+        status: 'COMPLETED',
+      },
+      {
+        studentId: s1.id,
+        merchantId: createdMerchants[5].id, // Teknoloji Market
+        originalAmount: 2400.0,
+        discountRate: 12.0,
+        discountedAmount: 2112.0,
+        savedAmount: 288.0,
+        integrationType: 'PWA_SCAN',
+        verificationCode: 'ORT-TX-9007',
+        status: 'COMPLETED',
+      },
+      {
+        studentId: s3.id,
+        merchantId: createdMerchants[6].id, // Karizma Berber
+        originalAmount: 250.0,
+        discountRate: 30.0,
+        discountedAmount: 175.0,
+        savedAmount: 75.0,
+        integrationType: 'PWA_SCAN',
+        verificationCode: 'ORT-TX-9008',
+        status: 'COMPLETED',
+      },
+      {
+        studentId: s2.id,
+        merchantId: createdMerchants[7].id, // Trend Giyim
+        originalAmount: 850.0,
+        discountRate: 18.0,
+        discountedAmount: 697.0,
+        savedAmount: 153.0,
+        integrationType: 'KEYBOARD_WEDGE',
+        verificationCode: 'ORT-TX-9009',
         status: 'COMPLETED',
       },
     ];
@@ -557,7 +641,7 @@ async function main() {
         await prisma.transaction.create({ data: tx });
       }
     }
-    console.log(`✅ Örnek tasarruf/işlem kayıtları kontrol edildi.`);
+    console.log(`✅ ${sampleTransactions.length} adet örnek indirimli işlem kaydı oluşturuldu/güncellendi.`);
   }
 
   // ═══════════════════════════════════════════════════════════
