@@ -66,6 +66,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a' },
-  loadingContainer: { flex: 1, backgroundColor: '#0f172a', justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: '#060d13' },
+  loadingContainer: { flex: 1, backgroundColor: '#060d13', justifyContent: 'center', alignItems: 'center' },
 });
+

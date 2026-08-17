@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { KeyRound, AlertCircle, User, CheckCircle2, Lock } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -26,11 +28,8 @@ export default function AdminLoginPage() {
 
       if (res.ok && data.status === 'SUCCESS') {
         localStorage.setItem('admin_token', data.data.token);
-        
-        // Middleware için cookie'leri ayarla
-        document.cookie = `token=${data.data.token}; path=/; max-age=604800; samesite=strict`; // 7 days
+        document.cookie = `token=${data.data.token}; path=/; max-age=604800; samesite=strict`;
         document.cookie = `user_role=ADMIN; path=/; max-age=604800; samesite=strict`;
-
         window.location.href = '/admin/dashboard';
       } else {
         setError(data.message || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
@@ -43,142 +42,127 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Glow Effects - Adjusted for Light Mode */}
-      <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-teal-600/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-sky-600/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-emerald-600/5 rounded-full blur-[80px] pointer-events-none" />
+    <div className="relative min-h-screen bg-[#060d13] flex items-center justify-center p-4 overflow-hidden font-sans">
+      {/* Background glow effects */}
+      <div className="absolute top-1/4 left-[-10%] w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-[-10%] w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b0a_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0a_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none" />
 
-      {/* Login Card */}
-      <div className="w-full max-w-md z-10 animate-scale-in">
-        {/* Logo & Header */}
-        <div className="text-center mb-8 animate-slide-down">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 mb-5 shadow-sm">
-            <svg className="w-8 h-8 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Ortahisar Belediyesi
-          </h1>
-          <p className="text-teal-600 font-semibold text-sm mt-1">
-            Genç Kart Yönetim Paneli
-          </p>
-          <p className="text-slate-500 text-xs mt-2">
-            Yetkili personel girişi
-          </p>
-        </div>
-
-        {/* Form Card */}
-        <div className="glass-panel rounded-3xl p-8 border border-slate-200 shadow-xl">
-          <form onSubmit={handleLogin} className="space-y-5">
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3.5 animate-slide-down">
-                <p className="text-red-600 text-xs font-medium flex items-center gap-2">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                  {error}
-                </p>
+      <div className="relative w-full max-w-[420px] z-10">
+        {/* Login Card */}
+        <div className="bg-[#0e1720]/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-[0_12px_40px_rgba(0,0,0,0.6)]">
+          
+          {/* Logo with Glow */}
+          <div className="flex flex-col items-center mb-7">
+            <div className="relative group mb-3">
+              <div className="absolute -inset-3 bg-cyan-400/35 rounded-full blur-xl animate-pulse" />
+              <div className="relative w-32 h-32 rounded-full bg-white p-1 border-2 border-cyan-400 shadow-[0_0_35px_rgba(34,211,238,0.4)] flex items-center justify-center overflow-hidden">
+                <Image
+                  src="/logo.png"
+                  alt="Ortahisar Belediyesi"
+                  width={130}
+                  height={130}
+                  className="w-full h-full object-contain rounded-full"
+                  priority
+                />
               </div>
-            )}
+            </div>
+            <h2 className="text-[11px] font-bold text-cyan-400 tracking-[0.25em] uppercase mt-1">
+              Ortahisar Belediyesi
+            </h2>
+            <h1 className="text-xl font-extrabold text-white tracking-tight mt-0.5">
+              Yönetici Girişi
+            </h1>
+          </div>
 
-            {/* Email */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-xs">
+              <AlertCircle size={16} className="flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">
+              <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">
                 Kurumsal E-Posta
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <User size={16} />
                 </div>
                 <input
-                  id="admin-email"
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="glass-input pl-11"
                   placeholder="admin@ortahisar.bel.tr"
-                  autoComplete="email"
+                  className="w-full bg-[#070d14] border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-200 text-sm placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition-all shadow-inner"
                 />
+                {email.length > 3 && (
+                  <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-emerald-400">
+                    <CheckCircle2 size={16} />
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">
+              <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">
                 Şifre
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <Lock size={16} />
                 </div>
                 <input
-                  id="admin-password"
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="glass-input pl-11"
                   placeholder="••••••••"
-                  autoComplete="current-password"
+                  className="w-full bg-[#070d14] border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-200 text-sm placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition-all shadow-inner"
                 />
+                {password.length >= 6 && (
+                  <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-emerald-400">
+                    <CheckCircle2 size={16} />
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end mt-1.5">
+                <a href="#" className="text-[11px] text-cyan-400/80 hover:text-cyan-300 transition-colors">
+                  Şifremi Unuttum
+                </a>
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
-              id="admin-login-btn"
               type="submit"
               disabled={loading}
-              className={`w-full glass-btn-primary py-3.5 text-sm flex items-center justify-center gap-2 rounded-xl transition-all ${
-                loading ? 'opacity-70 cursor-not-allowed' : ''
-              }`}
+              className="w-full bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)] flex items-center justify-center gap-2 mt-4 active:scale-[0.98] disabled:opacity-60 text-sm"
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                   Giriş Yapılıyor...
                 </>
-              ) : (
-                <>
-                  Sisteme Giriş Yap
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </>
-              )}
+              ) : 'Giriş Yap'}
             </button>
           </form>
 
-          {/* Footer Info */}
-          <div className="mt-6 pt-5 border-t border-slate-700/40">
-            <div className="flex items-center justify-center gap-4 text-[10px] text-slate-600">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                API Bağlantısı Aktif
-              </span>
-              <span>•</span>
-              <span>SSL Şifreli</span>
-              <span>•</span>
-              <span>v1.0</span>
-            </div>
+          {/* Status footer */}
+          <div className="mt-6 pt-4 border-t border-white/5 text-center flex items-center justify-center gap-3 text-[11px] text-slate-500">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Sistem Aktif
+            </span>
+            <span>•</span>
+            <span>v2.1</span>
           </div>
         </div>
-
-        {/* Bottom Note */}
-        <p className="text-center text-[10px] text-slate-600 mt-6">
-          © 2026 Ortahisar Belediyesi — Genç Kart Projesi
-        </p>
       </div>
     </div>
   );

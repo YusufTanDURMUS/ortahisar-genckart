@@ -157,7 +157,7 @@ export const DiscoverScreen: React.FC<{ user: any }> = ({ user }) => {
       <TextInput
         style={styles.searchInput}
         placeholder="İşletme veya adres ara..."
-        placeholderTextColor="#64748b"
+        placeholderTextColor="#475569"
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
@@ -181,7 +181,7 @@ export const DiscoverScreen: React.FC<{ user: any }> = ({ user }) => {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#38bdf8" />
+          <ActivityIndicator size="large" color="#2dd4bf" />
           <Text style={styles.loadingText}>Esnaflar yükleniyor...</Text>
         </View>
       ) : (
@@ -203,80 +203,79 @@ export const DiscoverScreen: React.FC<{ user: any }> = ({ user }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' }, // slate-50
-  header: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#0f172a' }, // slate-900
-  headerSubtitle: { fontSize: 13, color: '#64748b', marginTop: 2 },
+  container: { flex: 1, backgroundColor: '#f0f7ff' },
+  header: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8, backgroundColor: '#1a7ec8', paddingTop: 48 },
+  headerTitle: { fontSize: 22, fontWeight: '900', color: '#ffffff' },
+  headerSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 2, marginBottom: 4 },
   searchInput: {
-    marginHorizontal: 16, marginBottom: 12,
-    backgroundColor: '#ffffff', borderRadius: 16, padding: 12,
-    color: '#0f172a', borderWidth: 1, borderColor: '#e2e8f0', fontSize: 14,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+    marginHorizontal: 16, marginTop: 12, marginBottom: 12,
+    backgroundColor: '#ffffff', borderRadius: 16, padding: 14,
+    color: '#1e3a5f', borderWidth: 1.5, borderColor: '#c2ddf0', fontSize: 15,
   },
   categoriesWrapper: { marginBottom: 12, paddingLeft: 16, height: 46 },
   categoryChip: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#ffffff', paddingHorizontal: 12, paddingVertical: 8,
-    borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#e2e8f0',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1,
+    borderRadius: 20, marginRight: 8, borderWidth: 1.5, borderColor: '#c2ddf0',
   },
-  activeCategoryChip: { backgroundColor: '#0ea5e9', borderColor: '#0ea5e9' }, // ortahisar-blue
+  activeCategoryChip: { backgroundColor: '#1a7ec8', borderColor: '#1a7ec8' },
   categoryChipIcon: { fontSize: 14, marginRight: 4 },
   categoryChipText: { color: '#64748b', fontWeight: '600', fontSize: 13 },
-  activeCategoryText: { color: '#fff' },
-  listContent: { paddingHorizontal: 16, paddingBottom: 24 },
+  activeCategoryText: { color: '#ffffff' },
+  listContent: { paddingHorizontal: 16, paddingBottom: 24, paddingTop: 4 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
   loadingText: { color: '#64748b', fontSize: 14 },
   merchantCard: {
     backgroundColor: '#ffffff', borderRadius: 20, marginBottom: 14,
-    borderWidth: 1, borderColor: '#e2e8f0', overflow: 'hidden',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 4,
+    borderWidth: 1, borderColor: '#c2ddf0', overflow: 'hidden',
+    shadowColor: '#1a7ec8', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   cardHeader: {
     flexDirection: 'row', alignItems: 'center',
     padding: 14, gap: 12,
   },
   categoryIconBadge: {
-    width: 46, height: 46, backgroundColor: '#f0f9ff', // sky-50
+    width: 46, height: 46, backgroundColor: '#e8f4fd',
     borderRadius: 12, justifyContent: 'center', alignItems: 'center',
-    borderWidth: 1, borderColor: '#bae6fd', // sky-200
+    borderWidth: 1, borderColor: '#c2ddf0',
   },
   categoryIconText: { fontSize: 22 },
   titleContainer: { flex: 1 },
-  businessName: { fontSize: 17, fontWeight: 'bold', color: '#0f172a' },
+  businessName: { fontSize: 17, fontWeight: 'bold', color: '#1e3a5f' },
   categoryText: { fontSize: 12, color: '#64748b', marginTop: 2 },
-  branchCountText: { fontSize: 11, color: '#0ea5e9', marginTop: 3, fontWeight: '600' },
+  branchCountText: { fontSize: 11, color: '#1a7ec8', marginTop: 3, fontWeight: '600' },
   discountBadge: {
-    backgroundColor: '#f0fdf4', paddingHorizontal: 10, paddingVertical: 8, // green-50
+    backgroundColor: '#e8f4fd', paddingHorizontal: 10, paddingVertical: 8,
     borderRadius: 12, alignItems: 'center', minWidth: 52,
-    borderWidth: 1, borderColor: '#bbf7d0', // green-200
+    borderWidth: 1, borderColor: '#c2ddf0',
   },
-  discountText: { color: '#16a34a', fontWeight: 'bold', fontSize: 15 },
-  discountLabel: { color: '#16a34a', fontSize: 10, fontWeight: '600', opacity: 0.85 },
+  discountText: { color: '#1a7ec8', fontWeight: 'bold', fontSize: 15 },
+  discountLabel: { color: '#1a7ec8', fontSize: 10, fontWeight: '600', opacity: 0.85 },
   collapsedAddress: { paddingHorizontal: 14, paddingBottom: 12 },
-  expandHint: { color: '#0ea5e9', fontSize: 11, marginTop: 4, fontWeight: '600' },
+  expandHint: { color: '#1a7ec8', fontSize: 11, marginTop: 4, fontWeight: '600' },
   addressText: { color: '#64748b', fontSize: 13, lineHeight: 18, marginBottom: 8 },
   branchesContainer: {
-    borderTopWidth: 1, borderTopColor: '#f1f5f9', padding: 12, gap: 10, backgroundColor: '#f8fafc',
+    borderTopWidth: 1, borderTopColor: '#e8f4fd', padding: 12, gap: 10, backgroundColor: '#f0f7ff',
   },
   branchItem: {
     backgroundColor: '#ffffff', borderRadius: 12, padding: 12,
-    borderWidth: 1, borderColor: '#e2e8f0',
+    borderWidth: 1, borderColor: '#c2ddf0',
   },
-  mainBranchItem: { borderColor: '#38bdf8', borderWidth: 1.5 },
+  mainBranchItem: { borderColor: '#1a7ec8', borderWidth: 1.5 },
   branchHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: 8 },
-  branchName: { color: '#0f172a', fontSize: 14, fontWeight: 'bold', flex: 1 },
+  branchName: { color: '#1e3a5f', fontSize: 14, fontWeight: 'bold', flex: 1 },
   mainBadge: {
-    backgroundColor: '#f0f9ff', paddingHorizontal: 8,
-    paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#bae6fd',
+    backgroundColor: '#e8f4fd', paddingHorizontal: 8,
+    paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#c2ddf0',
   },
-  mainBadgeText: { color: '#0ea5e9', fontSize: 10, fontWeight: '700' },
+  mainBadgeText: { color: '#1a7ec8', fontSize: 10, fontWeight: '700' },
   mapButton: {
-    backgroundColor: '#f0f9ff', paddingVertical: 8,
-    borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#bae6fd',
+    backgroundColor: '#e8f4fd', paddingVertical: 8,
+    borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#c2ddf0',
   },
-  mapButtonText: { color: '#0ea5e9', fontWeight: '600', fontSize: 13 },
+  mapButtonText: { color: '#1a7ec8', fontWeight: '600', fontSize: 13 },
   emptyContainer: { paddingTop: 60, alignItems: 'center', gap: 10 },
   emptyIcon: { fontSize: 48 },
   emptyText: { color: '#64748b', fontSize: 16, textAlign: 'center' },
 });
+

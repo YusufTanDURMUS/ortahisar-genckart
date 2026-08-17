@@ -20,14 +20,22 @@ export const studentRegisterController = async (req: Request, res: Response) => 
 
 export const studentLoginController = async (req: Request, res: Response) => {
   try {
-    const { identifier, password } = req.body; // identifier = tcKn or phoneNumber
+    const identifier = req.body.identifier || req.body.tcKn || req.body.phoneNumber;
+    const password = req.body.password;
 
     if (!identifier || !password) {
-      return res.status(400).json({ status: 'ERROR', message: 'TC Kimlik/Telefon ve Şifre zorunludur.' });
+      return res.status(400).json({ status: 'ERROR', message: 'TC Kimlik Numarası ve Şifre zorunludur.' });
     }
 
     const result = await authService.loginStudent(identifier, password);
-    return res.status(200).json({ status: 'SUCCESS', data: result });
+    return res.status(200).json({
+      status: 'SUCCESS',
+      data: {
+        token: result.token,
+        user: result.user,
+        student: result.user,
+      }
+    });
   } catch (error: any) {
     return res.status(401).json({ status: 'FAILED', message: error.message });
   }

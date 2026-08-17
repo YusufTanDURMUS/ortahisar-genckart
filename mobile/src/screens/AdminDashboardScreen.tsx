@@ -8,41 +8,70 @@ interface AdminDashboardScreenProps {
 
 export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({ user, onLogout }) => {
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Yönetici Paneli</Text>
-      <Text style={styles.subtitle}>Hoş geldiniz, {user.email}</Text>
-      
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>1,204</Text>
-          <Text style={styles.statLabel}>Aktif Öğrenci</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>45</Text>
-          <Text style={styles.statLabel}>Kayıtlı Esnaf</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>₺12K</Text>
-          <Text style={styles.statLabel}>Toplam İndirim</Text>
-        </View>
+    <View style={styles.container}>
+      {/* Blue Header */}
+      <View style={styles.headerBanner}>
+        <Text style={styles.headerBadge}>ORTAHİSAR BELEDİYESİ</Text>
+        <Text style={styles.headerTitle}>Yönetici Paneli</Text>
+        <Text style={styles.headerSub}>{user.email}</Text>
       </View>
+      <View style={styles.ribbon} />
 
-      <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
-        <Text style={styles.logoutText}>Sistemden Çık</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.sectionTitle}>Sistem İstatistikleri</Text>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>👨‍🎓</Text>
+            <Text style={styles.statNumber}>1,204</Text>
+            <Text style={styles.statLabel}>Aktif Öğrenci</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>🏪</Text>
+            <Text style={styles.statNumber}>45</Text>
+            <Text style={styles.statLabel}>Kayıtlı Esnaf</Text>
+          </View>
+        </View>
+
+        <View style={styles.statsRow}>
+          <View style={[styles.statCard, styles.statCardWide]}>
+            <Text style={styles.statIcon}>💰</Text>
+            <Text style={styles.statNumber}>₺12K</Text>
+            <Text style={styles.statLabel}>Toplam İndirim</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} activeOpacity={0.8}>
+          <Text style={styles.logoutText}>Sistemden Çık</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a' },
+  container: { flex: 1, backgroundColor: '#f0f7ff' },
+
+  // Header
+  headerBanner: { backgroundColor: '#1a7ec8', paddingTop: 52, paddingBottom: 28, paddingHorizontal: 24 },
+  headerBadge: { color: 'rgba(255,255,255,0.75)', fontSize: 10, fontWeight: '800', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 6 },
+  headerTitle: { fontSize: 26, fontWeight: '900', color: '#ffffff', marginBottom: 4 },
+  headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.7)' },
+  ribbon: { width: '100%', height: 5, backgroundColor: '#0f5fa0' },
+
+  // Content
   content: { padding: 20, paddingBottom: 40 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#fff', marginBottom: 8, marginTop: 40 },
-  subtitle: { fontSize: 16, color: '#94a3b8', marginBottom: 32 },
-  statsContainer: { gap: 16, marginBottom: 40 },
-  statCard: { backgroundColor: '#1e293b', padding: 20, borderRadius: 16, borderWidth: 1, borderColor: '#334155', alignItems: 'center' },
-  statNumber: { fontSize: 32, fontWeight: 'bold', color: '#38bdf8', marginBottom: 4 },
-  statLabel: { fontSize: 14, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1 },
-  logoutButton: { backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingVertical: 16, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)', alignItems: 'center' },
-  logoutText: { color: '#ef4444', fontSize: 16, fontWeight: 'bold' },
+  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#1a7ec8', textTransform: 'uppercase', letterSpacing: 2, marginTop: 20, marginBottom: 16 },
+
+  // Stats
+  statsRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
+  statCard: { flex: 1, backgroundColor: '#ffffff', padding: 20, borderRadius: 20, alignItems: 'center', borderWidth: 1, borderColor: '#c2ddf0', shadowColor: '#1a7ec8', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
+  statCardWide: { flex: 1 },
+  statIcon: { fontSize: 28, marginBottom: 8 },
+  statNumber: { fontSize: 28, fontWeight: '900', color: '#1a7ec8', marginBottom: 4 },
+  statLabel: { fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600', textAlign: 'center' },
+
+  // Logout
+  logoutBtn: { backgroundColor: '#fef2f2', paddingVertical: 16, borderRadius: 16, borderWidth: 1, borderColor: '#fecaca', alignItems: 'center', marginTop: 32 },
+  logoutText: { color: '#ef4444', fontSize: 16, fontWeight: '700' },
 });

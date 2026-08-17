@@ -9,28 +9,59 @@ interface MerchantScannerScreenProps {
 export const MerchantScannerScreen: React.FC<MerchantScannerScreenProps> = ({ user, onLogout }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Esnaf QR Tarayıcı</Text>
-      <Text style={styles.subtitle}>Hoş geldiniz, {user.businessName || 'Esnaf'}</Text>
-      
-      <View style={styles.cameraBox}>
-        <Text style={styles.cameraText}>[Kamera Alanı]</Text>
-        <Text style={styles.cameraSubtext}>Öğrenci QR kodunu bu alana okutun.</Text>
+      {/* Blue Header */}
+      <View style={styles.headerBanner}>
+        <Text style={styles.headerBadge}>ORTAHİSAR BELEDİYESİ</Text>
+        <Text style={styles.headerTitle}>Esnaf QR Tarayıcı</Text>
+        <Text style={styles.headerSub}>Hoş geldiniz, {user.businessName || 'Esnaf'}</Text>
       </View>
+      <View style={styles.ribbon} />
 
-      <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
-        <Text style={styles.logoutText}>Çıkış Yap</Text>
-      </TouchableOpacity>
+      <View style={styles.body}>
+        {/* Camera Box */}
+        <View style={styles.cameraBox}>
+          <Text style={styles.cameraIcon}>📷</Text>
+          <Text style={styles.cameraTitle}>QR / Barkod Okuyucu</Text>
+          <Text style={styles.cameraSub}>Öğrenci Genç Kart kodunu bu alana okutun</Text>
+        </View>
+
+        {/* Info */}
+        <View style={styles.infoCard}>
+          <Text style={styles.infoText}>
+            🔵 Öğrenci kartını ekrana göstermesini isteyin, ardından QR kodu tarayın.
+          </Text>
+        </View>
+
+        <TouchableOpacity style={styles.logoutBtn} onPress={onLogout} activeOpacity={0.8}>
+          <Text style={styles.logoutText}>Çıkış Yap</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a', padding: 20, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#fff', marginBottom: 8 },
-  subtitle: { fontSize: 16, color: '#94a3b8', marginBottom: 40 },
-  cameraBox: { width: 300, height: 300, backgroundColor: '#1e293b', borderRadius: 20, borderWidth: 2, borderColor: '#38bdf8', justifyContent: 'center', alignItems: 'center', marginBottom: 40 },
-  cameraText: { fontSize: 20, color: '#38bdf8', fontWeight: 'bold', marginBottom: 8 },
-  cameraSubtext: { fontSize: 14, color: '#94a3b8', textAlign: 'center', paddingHorizontal: 20 },
-  logoutButton: { backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)' },
-  logoutText: { color: '#ef4444', fontSize: 16, fontWeight: 'bold' },
+  container: { flex: 1, backgroundColor: '#f0f7ff' },
+
+  // Header
+  headerBanner: { backgroundColor: '#1a7ec8', paddingTop: 52, paddingBottom: 28, paddingHorizontal: 24, alignItems: 'center' },
+  headerBadge: { color: 'rgba(255,255,255,0.75)', fontSize: 10, fontWeight: '800', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 6 },
+  headerTitle: { fontSize: 24, fontWeight: '900', color: '#ffffff', marginBottom: 4 },
+  headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.7)' },
+  ribbon: { width: '100%', height: 5, backgroundColor: '#0f5fa0' },
+
+  // Body
+  body: { flex: 1, padding: 24, justifyContent: 'center', alignItems: 'center', gap: 20 },
+
+  cameraBox: { width: 280, height: 280, backgroundColor: '#ffffff', borderRadius: 24, borderWidth: 3, borderColor: '#1a7ec8', borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', shadowColor: '#1a7ec8', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 16, elevation: 6 },
+  cameraIcon: { fontSize: 52, marginBottom: 12 },
+  cameraTitle: { fontSize: 16, fontWeight: '800', color: '#1e3a5f', marginBottom: 8 },
+  cameraSub: { fontSize: 12, color: '#64748b', textAlign: 'center', paddingHorizontal: 16, lineHeight: 18 },
+
+  infoCard: { backgroundColor: '#e8f4fd', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#c2ddf0', width: '100%' },
+  infoText: { color: '#1e3a5f', fontSize: 13, fontWeight: '600', lineHeight: 20, textAlign: 'center' },
+
+  // Logout
+  logoutBtn: { backgroundColor: '#fef2f2', paddingVertical: 14, paddingHorizontal: 32, borderRadius: 16, borderWidth: 1, borderColor: '#fecaca' },
+  logoutText: { color: '#ef4444', fontSize: 15, fontWeight: '700' },
 });

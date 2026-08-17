@@ -1,76 +1,72 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Linking,
+  View, Text, StyleSheet, TextInput, TouchableOpacity,
+  KeyboardAvoidingView, Platform, ScrollView, Image
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config/api';
 
 interface LoginScreenProps {
-  onLoginSuccess: (token: string, userData: any) => void;
+  onLoginSuccess: (token: string, user: any, role: 'student' | 'merchant') => void;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
-  const [identifier, setIdentifier] = useState('');
+  const [tcKn, setTcKn] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    if (!identifier || !password) {
-      Alert.alert('Eksik Bilgi', 'Lütfen Kullanıcı Adı ve Şifrenizi giriniz.');
+    if (!tcKn.trim() || !password) {
+      setError('Lütfen TC Kimlik Numarası ve Şifrenizi girin.');
+      return;
+    }
+
+    if (tcKn.trim().length !== 11) {
+      setError('TC Kimlik Numarası 11 haneli olmalıdır.');
       return;
     }
 
     setLoading(true);
+    setError('');
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
 
     try {
-      let endpoint = `${API_BASE_URL}/auth/student-login`;
-      let requestBody: any = { identifier, password };
-
-      if (identifier.includes('@')) {
-        // Try merchant first
-        endpoint = `${API_BASE_URL}/auth/merchant-login`;
-        requestBody = { email: identifier, password };
-      }
-
-      let response = await fetch(endpoint, {
+      const res = await fetch(`${API_BASE_URL}/auth/student-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
+        signal: controller.signal,
+        body: JSON.stringify({
+          identifier: tcKn.trim(),
+          tcKn: tcKn.trim(),
+          password: password,
+        }),
       });
 
-      let json = await response.json();
+      clearTimeout(timeoutId);
+      const data = await res.json();
 
-      // If merchant failed with unauthorized, try admin
-      if (identifier.includes('@') && json.status === 'FAILED' && json.message === 'Yetkisiz giriş.') {
-        endpoint = `${API_BASE_URL}/auth/admin-login`;
-        response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        });
-        json = await response.json();
-      }
+      if (res.ok && data.status === 'SUCCESS') {
+        const studentUser = data.data.student || data.data.user;
+        const authToken = data.data.token;
 
-      if (json.status === 'SUCCESS') {
-        const { token, user } = json.data;
-        // Oturumu cihaza kaydet
-        await AsyncStorage.setItem('user_token', token);
-        await AsyncStorage.setItem('user_data', JSON.stringify(user));
-        onLoginSuccess(token, user);
+        await AsyncStorage.setItem('user_token', authToken);
+        await AsyncStorage.setItem('user_data', JSON.stringify(studentUser));
+
+        onLoginSuccess(authToken, studentUser, 'student');
       } else {
-        Alert.alert('Giriş Başarısız', json.message || 'Genç Kart kaydınız bulunamadı.');
+        setError(data.message || 'Giriş bilgileri hatalı. Lütfen kontrol edin.');
       }
-    } catch (error) {
-      Alert.alert('Bağlantı Hatası', 'Belediye sunucusuna bağlanılamadı. İnternet bağlantınızı kontrol edin.');
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        setError('Sunucu yanıt vermedi (Zaman aşımı). Bilgisayar ve telefonunuzun aynı Wi-Fi ağına bağlı olduğundan emin olun.');
+      } else {
+        setError('Sunucuya bağlanılamadı. Bilgisayarınız ve telefonunuzun aynı Wi-Fi ağına bağlı olduğundan emin olun.');
+      }
     } finally {
       setLoading(false);
     }
@@ -81,58 +77,145 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <View style={styles.card}>
-        <Text style={styles.badge}>TRABZON / ORTAHİSAR BELEDİYESİ</Text>
-        <Text style={styles.title}>Genç Kart Mobil</Text>
-        <Text style={styles.subtitle}>E-Devlet onaylı Genç Kart hesabınızla hemen giriş yapın.</Text>
+      {/* Background glow orbs */}
+      <View style={styles.glowOrbTop} />
+      <View style={styles.glowOrbBottom} />
 
-        <TextInput
-          style={styles.input}
-          placeholder="TC, Telefon veya E-posta"
-          placeholderTextColor="#64748b"
-          autoCapitalize="none"
-          keyboardType={identifier.includes('@') ? 'email-address' : 'default'}
-          value={identifier}
-          onChangeText={setIdentifier}
-        />
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        
+        {/* Login Card */}
+        <View style={styles.card}>
+          
+          {/* Logo with Glow */}
+          <View style={styles.logoWrapper}>
+            <View style={styles.logoGlow} />
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../../assets/logo.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
+            </View>
+          </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Şifre"
-          placeholderTextColor="#64748b"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+          <Text style={styles.badgeText}>ORTAHİSAR BELEDİYESİ</Text>
+          <Text style={styles.cardTitle}>Genç Kart Girişi</Text>
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Giriş Yap</Text>
-          )}
-        </TouchableOpacity>
+          {error ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>⚠️ {error}</Text>
+            </View>
+          ) : null}
 
-        <TouchableOpacity 
-          style={styles.linkButton} 
-          onPress={() => Linking.openURL('https://onlineislemler.trabzonortahisar.bel.tr/omis/?_gl=1*nhy6tn*_ga*MTI2ODczMDc3MC4xNzg2MzQ4NDU2*_ga_PYJE9NBWR5*czE3ODY2OTIyMzAkbzYkZzEkdDE3ODY2OTIyNTAkajQwJGwwJGgw#/login')}
-        >
-          <Text style={styles.linkText}>Hesabınız yok mu? İnternet Şubesinden Kayıt Olun</Text>
-        </TouchableOpacity>
-      </View>
+          {/* TC Kimlik No Field */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>TC KİMLİK NUMARASI</Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.input}
+                placeholder="11 haneli TC kimlik no"
+                placeholderTextColor="#475569"
+                value={tcKn}
+                onChangeText={setTcKn}
+                keyboardType="numeric"
+                maxLength={11}
+                autoCapitalize="none"
+              />
+              {tcKn.length === 11 && (
+                <Text style={styles.checkIcon}>✓</Text>
+              )}
+            </View>
+          </View>
+
+          {/* Şifre Field */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>ŞİFRE</Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.input}
+                placeholder="••••••••"
+                placeholderTextColor="#475569"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                style={styles.eyeBtn}
+                onPress={() => setShowPassword(!showPassword)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Text style={styles.eyeText}>{showPassword ? 'Gizle' : 'Göster'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.loginBtn, loading && styles.loginBtnDisabled]}
+            onPress={handleLogin}
+            disabled={loading}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.loginBtnText}>
+              {loading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.statusRow}>
+            <View style={styles.statusDot} />
+            <Text style={styles.statusText}>Sistem Aktif · v2.1</Text>
+          </View>
+        </View>
+
+        <Text style={styles.footer}>
+          © 2026 Trabzon Ortahisar Belediyesi
+        </Text>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f9ff', justifyContent: 'center', padding: 20 }, // sky-50 background
-  card: { backgroundColor: '#ffffff', borderRadius: 28, padding: 24, borderWidth: 1, borderColor: '#e0f2fe', shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 },
-  badge: { color: '#0ea5e9', fontSize: 11, fontWeight: '800', letterSpacing: 1, marginBottom: 8 },
-  title: { fontSize: 26, fontWeight: 'bold', color: '#0369a1' },
-  subtitle: { fontSize: 13, color: '#64748b', marginBottom: 24, marginTop: 4, lineHeight: 20 },
-  input: { backgroundColor: '#f8fafc', borderRadius: 16, padding: 14, color: '#0f172a', marginBottom: 16, borderWidth: 1, borderColor: '#e2e8f0', fontSize: 15 },
-  button: { backgroundColor: '#0ea5e9', borderRadius: 16, padding: 16, alignItems: 'center', marginTop: 8, shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
-  buttonText: { color: '#ffffff', fontWeight: 'bold', fontSize: 16 },
-  linkButton: { marginTop: 20, alignItems: 'center', padding: 8 },
-  linkText: { color: '#0369a1', fontSize: 13, fontWeight: '600' },
+  container: { flex: 1, backgroundColor: '#060d13' },
+  scrollContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 40, paddingHorizontal: 16 },
+
+  glowOrbTop: { position: 'absolute', top: -80, left: -60, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(6, 182, 212, 0.12)' },
+  glowOrbBottom: { position: 'absolute', bottom: -80, right: -60, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(20, 184, 166, 0.12)' },
+
+  // Card
+  card: { width: '100%', maxWidth: 380, backgroundColor: 'rgba(14, 23, 32, 0.95)', borderRadius: 28, padding: 26, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)', shadowColor: '#06b6d4', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 10, alignItems: 'center' },
+
+  // Logo
+  logoWrapper: { position: 'relative', marginBottom: 16, alignItems: 'center', justifyContent: 'center' },
+  logoGlow: { position: 'absolute', width: 110, height: 110, borderRadius: 55, backgroundColor: 'rgba(34, 211, 238, 0.4)', shadowColor: '#22d3ee', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.9, shadowRadius: 24, elevation: 14 },
+  logoContainer: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ffffff', padding: 2, borderWidth: 2, borderColor: 'rgba(34, 211, 238, 0.9)', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6 },
+  logoImage: { width: '100%', height: '100%' },
+
+  badgeText: { color: '#22d3ee', fontSize: 10, fontWeight: '800', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 4 },
+  cardTitle: { fontSize: 18, fontWeight: '900', color: '#ffffff', marginBottom: 20, textAlign: 'center' },
+
+  // Error
+  errorBox: { width: '100%', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.25)', borderRadius: 12, padding: 10, marginBottom: 14 },
+  errorText: { color: '#f87171', fontSize: 12, fontWeight: '600', textAlign: 'center' },
+
+  // Inputs
+  inputGroup: { width: '100%', marginBottom: 14 },
+  label: { fontSize: 9, fontWeight: '800', color: '#94a3b8', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 6 },
+  inputWrapper: { position: 'relative', width: '100%', justifyContent: 'center' },
+  input: { width: '100%', backgroundColor: '#070d14', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, color: '#ffffff', fontWeight: '500' },
+  checkIcon: { position: 'absolute', right: 14, color: '#34d399', fontSize: 15, fontWeight: 'bold' },
+  eyeBtn: { position: 'absolute', right: 12, paddingHorizontal: 6, paddingVertical: 4 },
+  eyeText: { color: '#38bdf8', fontSize: 11, fontWeight: '700' },
+
+  // Button
+  loginBtn: { width: '100%', backgroundColor: '#0284c7', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 10, shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 10, elevation: 6 },
+  loginBtnDisabled: { opacity: 0.6 },
+  loginBtnText: { color: '#ffffff', fontSize: 15, fontWeight: '800', letterSpacing: 0.5 },
+
+  // Status
+  statusRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 18, gap: 6 },
+  statusDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#34d399' },
+  statusText: { fontSize: 11, color: '#64748b', fontWeight: '600' },
+
+  footer: { marginTop: 24, fontSize: 11, color: '#475569', textAlign: 'center' },
 });

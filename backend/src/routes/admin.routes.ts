@@ -25,50 +25,121 @@ router.get('/merchants', async (req: Request, res: Response) => {
 });
 
 // ──────────────────────────────────────────────
-// 2. Yeni Esnaf Kaydı Oluştur
+// 2. Yeni Esnaf Kaydı Oluştur veya Mevcut Kullanıcıya Bağla
 // POST /api/v1/admin/merchants
 // ──────────────────────────────────────────────
 router.post('/merchants', async (req: Request, res: Response) => {
   try {
-    const { businessName, category, address, taxNumber, defaultDiscountRate, email, password } = req.body;
+    const { businessName, category, address, taxNumber, defaultDiscountRate, email, password, phoneNumber } = req.body;
 
-    if (!businessName || !category || !email || !password) {
+    if (!businessName || !category || !email) {
       return res.status(400).json({
         status: 'ERROR',
-        message: 'İşletme adı, kategori, e-posta ve şifre zorunludur.'
+        message: 'İşletme adı, kategori ve e-posta zorunludur.'
       });
     }
 
-    // E-posta tekrarlama kontrolü
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return res.status(409).json({
-        status: 'ERROR',
-        message: 'Bu e-posta adresi zaten kayıtlı.'
-      });
-    }
+    let user = await prisma.user.findUnique({
+      where: { email },
+      include: { merchantProfile: true }
+    });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    let merchantProfile;
 
-    const newUser = await prisma.user.create({
-      data: {
-        role: 'MERCHANT',
-        email,
-        passwordHash: hashedPassword,
-        merchantProfile: {
-          create: {
+    if (user) {
+      // Mevcut kullanıcıyı güncelle veya profili bağla
+      if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { passwordHash: hashedPassword, role: 'MERCHANT', ...(phoneNumber ? { phoneNumber } : {}) }
+        });
+      } else {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { role: 'MERCHANT', ...(phoneNumber ? { phoneNumber } : {}) }
+        });
+      }
+
+      if (user.merchantProfile) {
+        merchantProfile = await prisma.merchantProfile.update({
+          where: { id: user.merchantProfile.id },
+          data: {
+            businessName,
+            category,
+            address: address || user.merchantProfile.address,
+            taxNumber: taxNumber || user.merchantProfile.taxNumber,
+            defaultDiscountRate: Number(defaultDiscountRate) || user.merchantProfile.defaultDiscountRate
+          }
+        });
+      } else {
+        merchantProfile = await prisma.merchantProfile.create({
+          data: {
+            userId: user.id,
             businessName,
             category,
             address: address || null,
             taxNumber: taxNumber || null,
-            defaultDiscountRate: Number(defaultDiscountRate) || 10.0
+            defaultDiscountRate: Number(defaultDiscountRate) || 15.0
           }
-        }
-      },
-      include: { merchantProfile: true }
-    });
+        });
+      }
+    } else {
+      // Yeni kullanıcı oluştur
+      if (!password) {
+        return res.status(400).json({
+          status: 'ERROR',
+          message: 'Yeni esnaf hesabı için şifre zorunludur.'
+        });
+      }
 
-    res.status(201).json({ status: 'SUCCESS', data: newUser.merchantProfile });
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = await prisma.user.create({
+        data: {
+          role: 'MERCHANT',
+          email,
+          phoneNumber: phoneNumber || null,
+          passwordHash: hashedPassword,
+          merchantProfile: {
+            create: {
+              businessName,
+              category,
+              address: address || null,
+              taxNumber: taxNumber || null,
+              defaultDiscountRate: Number(defaultDiscountRate) || 15.0
+            }
+          }
+        },
+        include: { merchantProfile: true }
+      });
+
+      merchantProfile = newUser.merchantProfile!;
+    }
+
+    // Ana şubeyi de oluştur
+    if (address && merchantProfile) {
+      const existingLoc = await prisma.storeLocation.findFirst({
+        where: { merchantId: merchantProfile.id, isMain: true }
+      });
+      if (existingLoc) {
+        await prisma.storeLocation.update({
+          where: { id: existingLoc.id },
+          data: { address, title: `${businessName} (Merkez)` }
+        });
+      } else {
+        await prisma.storeLocation.create({
+          data: {
+            merchantId: merchantProfile.id,
+            title: `${businessName} (Merkez)`,
+            address,
+            isMain: true
+          }
+        });
+      }
+    }
+
+    res.status(201).json({ status: 'SUCCESS', data: merchantProfile });
   } catch (error: any) {
     res.status(400).json({ status: 'FAILED', message: error.message });
   }
@@ -204,4 +275,50 @@ router.get('/stats', async (req: Request, res: Response) => {
   }
 });
 
+// ──────────────────────────────────────────────
+// 7. Tüm Kullanıcıları Listele (Öğrenci, Esnaf, Admin)
+// GET /api/v1/admin/users
+// ──────────────────────────────────────────────
+router.get('/users', async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      include: {
+        studentProfile: true,
+        merchantProfile: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const formattedUsers = users.map((u) => ({
+      id: u.id,
+      role: u.role,
+      email: u.email,
+      phoneNumber: u.phoneNumber,
+      createdAt: u.createdAt,
+      displayName:
+        u.role === 'STUDENT'
+          ? `${u.studentProfile?.firstName || ''} ${u.studentProfile?.lastName || ''}`.trim() || 'İsimsiz Öğrenci'
+          : u.role === 'MERCHANT'
+          ? u.merchantProfile?.businessName || 'İşletme'
+          : 'Sistem Yöneticisi',
+      tcKn: u.studentProfile?.tcKn || null,
+      birthYear: u.studentProfile?.birthYear || null,
+      schoolName: u.studentProfile?.schoolName || null,
+      district: u.studentProfile?.district || null,
+      isEligible: u.studentProfile?.isEligible ?? true,
+      statusReason: u.studentProfile?.statusReason || null,
+      businessName: u.merchantProfile?.businessName || null,
+      category: u.merchantProfile?.category || null,
+      discountRate: u.merchantProfile?.defaultDiscountRate || null,
+      taxNumber: u.merchantProfile?.taxNumber || null,
+      address: u.merchantProfile?.address || null,
+    }));
+
+    res.json({ status: 'SUCCESS', data: formattedUsers });
+  } catch (error: any) {
+    res.status(500).json({ status: 'ERROR', message: error.message });
+  }
+});
+
 export default router;
+

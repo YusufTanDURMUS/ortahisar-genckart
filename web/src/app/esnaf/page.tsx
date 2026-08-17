@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import QRScanner from '@/components/QRScanner';
-import { CheckCircle2, XCircle, RefreshCw, Receipt, Store, LogOut } from 'lucide-react';
+import { CheckCircle2, XCircle, RefreshCw, Receipt, Store, LogOut, ArrowLeft, ShieldCheck, MapPin, X, Plus } from 'lucide-react';
 import { NEIGHBORHOODS, getStreetsByNeighborhood } from '@/lib/ortahisarAddress';
 
 export default function EsnafPWADashboard() {
@@ -17,7 +17,6 @@ export default function EsnafPWADashboard() {
   const [lastScannedQR, setLastScannedQR] = useState<string | null>(null);
   const [agentStatus, setAgentStatus] = useState<'connected' | 'idle'>('connected');
 
-  // Talep State'leri
   // Talep State'leri
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requests, setRequests] = useState<any[]>([]);
@@ -208,34 +207,48 @@ export default function EsnafPWADashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-[#060d13] text-slate-200 font-sans flex flex-col relative overflow-x-hidden">
+      {/* Background glow */}
+      <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-[160px] pointer-events-none" />
+
       {/* Header */}
-      <header className="glass-panel sticky top-0 z-50 px-6 py-4 flex justify-between items-center border-b border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="text-slate-500 hover:text-slate-900 text-sm transition font-medium">
-            ← Ana Portal
-          </Link>
-          <span className="text-slate-300">|</span>
-          <h1 className="text-lg font-bold text-slate-900 tracking-wide">
-            🏪 Esnaf PWA Arayüzü
-          </h1>
+      <header className="bg-[#0b131c]/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-30 px-6 py-3.5 shadow-lg flex justify-between items-center">
+        <div className="flex items-center gap-3.5">
+          <div className="relative group flex-shrink-0">
+            <div className="absolute -inset-1 bg-teal-400/30 rounded-full blur-sm" />
+            <div className="relative w-12 h-12 rounded-full bg-white p-0.5 border border-teal-400/80 flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(20,184,166,0.3)]">
+              <img
+                src="/logo.png"
+                alt="Ortahisar Belediyesi"
+                className="w-full h-full object-contain rounded-full"
+              />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-sm sm:text-base font-extrabold text-white tracking-tight">
+              Ortahisar Belediyesi
+            </h1>
+            <p className="text-[11px] text-teal-400 font-medium">
+              Esnaf QR & Satış Portalı
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {/* Aktif Şube Göstergesi */}
+
+        <div className="flex items-center gap-2 sm:gap-3">
           {activeBranch && (
             <button
               onClick={() => setShowBranchModal(true)}
-              className="px-3 py-1.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 text-xs font-semibold flex items-center gap-1.5 hover:bg-sky-100 transition shadow-sm"
+              className="px-3 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold flex items-center gap-1.5 hover:bg-cyan-500/20 transition-all"
               title="Aktif Şubeyi Değiştir"
             >
-              <Store size={13} />
+              <Store size={14} />
               <span className="hidden sm:inline">{activeBranch.title}</span>
               <span className="sm:hidden">Şube</span>
             </button>
           )}
-          <span className="px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 text-xs flex items-center gap-1.5 font-medium shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            C# Windows Ajanı: Entegre
+          <span className="hidden sm:flex px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold tracking-wider items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            SİSTEM AKTİF
           </span>
           <button 
             onClick={() => {
@@ -245,214 +258,231 @@ export default function EsnafPWADashboard() {
               document.cookie = 'user_role=; Max-Age=0; path=/';
               window.location.href = '/';
             }}
-            className="p-2 ml-2 text-slate-500 hover:text-red-600 bg-slate-100 rounded-xl transition shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-1.5 bg-[#0e1720] hover:bg-red-500/10 text-slate-400 hover:text-red-400 rounded-xl text-xs font-bold transition-all border border-white/5 hover:border-red-500/20"
             title="Çıkış Yap"
           >
-            <LogOut size={18} />
+            <LogOut size={14} />
+            <span className="hidden sm:inline">Çıkış</span>
           </button>
         </div>
       </header>
 
       {/* Main Grid */}
-      <main className="flex-1 p-6 max-w-5xl w-full mx-auto space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Quick QR Generator Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-center">
-            {result ? (
-              <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 text-center shadow-md animate-in fade-in zoom-in-95 duration-200">
-                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-200">
-                  <CheckCircle2 size={32} />
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto space-y-6 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Left Column - QR Scanner */}
+          <div className="lg:col-span-7">
+            <div className="bg-[#0e1720]/80 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white/5 shadow-lg relative overflow-hidden flex flex-col justify-center min-h-[400px]">
+              
+              {/* Decorative Background */}
+              <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+              {result ? (
+                <div className="relative z-10 bg-[#0a151f]/80 border border-emerald-500/30 rounded-2xl p-6 sm:p-8 text-center shadow-[0_0_30px_rgba(16,185,129,0.1)] animate-in fade-in zoom-in-95 duration-300">
+                  <div className="w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                    <CheckCircle2 size={40} />
+                  </div>
+                  <span className="inline-block bg-emerald-500/20 text-emerald-400 text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest mb-3 border border-emerald-500/30">
+                    İNDİRİM ONAYLANDI
+                  </span>
+                  <h3 className="text-2xl font-extrabold text-white mb-1">
+                    {result.student.firstName} {result.student.lastName}
+                  </h3>
+                  <p className="text-sm text-emerald-400/80 mb-6 font-medium tracking-wide">Ortahisar Genç Kart Doğrulandı</p>
+                  
+                  <div className="bg-[#060b11] border border-white/5 shadow-inner rounded-xl p-4 sm:p-5 space-y-3 mb-6 text-left">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-400 font-medium">Genel Tutar:</span>
+                      <span className="text-slate-300 line-through decoration-red-500/50 decoration-2 font-semibold">{result.financials.originalAmount} TL</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-400 font-medium">İndirim Oranı:</span>
+                      <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">% {result.financials.discountRate}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-400 font-medium">İndirim Tutarı:</span>
+                      <span className="text-emerald-400 font-bold">-{result.financials.savedAmount} TL</span>
+                    </div>
+                    <div className="border-t border-white/10 pt-3 mt-3 flex justify-between items-center">
+                      <span className="text-white font-bold">Tahsil Edilecek:</span>
+                      <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
+                        {result.financials.discountedAmount} TL
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-[11px] text-slate-500 mb-6 font-medium">Onay Kodu: <span className="font-mono text-slate-300 bg-[#060b11] px-2 py-1 rounded border border-white/5">{result.verificationCode}</span></p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={resetScanner}
+                      disabled={loadingScan}
+                      className="flex-1 order-2 sm:order-1 bg-[#060b11] hover:bg-white/5 text-slate-300 font-bold py-3.5 rounded-xl transition-all border border-white/5 disabled:opacity-50"
+                    >
+                      İptal Et
+                    </button>
+                    <button
+                      onClick={handleCompleteTransaction}
+                      disabled={loadingScan}
+                      className="flex-[2] order-1 sm:order-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      <CheckCircle2 size={18} />
+                      {loadingScan ? 'Onaylanıyor...' : 'Ödeme Alındı'}
+                    </button>
+                  </div>
                 </div>
-                <span className="inline-block bg-green-100 text-green-700 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
-                  İNDİRİM ONAYLANDI
-                </span>
-                <h3 className="text-xl font-bold text-slate-900 mb-1">
-                  {result.student.firstName} {result.student.lastName}
-                </h3>
-                <p className="text-xs text-green-600 mb-4 font-medium">Ortahisar Genç Kart Doğrulandı</p>
-                <div className="bg-white border border-green-100 shadow-sm rounded-xl p-3 space-y-2 mb-4 text-left">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-600">Genel Tutar:</span>
-                    <span className="text-slate-700 line-through font-medium">{result.financials.originalAmount} TL</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-600">İndirim Oranı:</span>
-                    <span className="text-green-600 font-bold">{result.financials.discountRate}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-600">İndirim Tutarı:</span>
-                    <span className="text-green-600 font-semibold">-{result.financials.savedAmount} TL</span>
-                  </div>
-                  <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
-                    <span className="text-slate-900 font-bold text-sm">Tahsil Edilecek:</span>
-                    <span className="text-xl font-extrabold text-green-600">{result.financials.discountedAmount} TL</span>
+              ) : isScanning ? (
+                <div className="space-y-4 text-center relative z-10 w-full max-w-md mx-auto">
+                  <div className="bg-[#0a151f]/80 border border-white/5 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md">
+                    <h3 className="text-xl font-bold text-white mb-2">Müşteri QR Kodunu Okutun</h3>
+                    <p className="text-sm text-slate-400 mb-6">Fatura Tutarı: <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-1 rounded ml-1">{amount} TL</span></p>
+
+                    {error && (
+                      <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center gap-3 text-red-400 text-xs sm:text-sm text-left">
+                        <XCircle size={18} className="shrink-0" />
+                        <span>{error}</span>
+                      </div>
+                    )}
+
+                    <div className={loadingScan ? 'hidden' : 'block rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.15)]'}>
+                      <QRScanner onScanSuccess={handleScanSuccess} />
+                    </div>
+
+                    {loadingScan && (
+                      <div className="py-24 flex flex-col items-center justify-center">
+                        <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-6"></div>
+                        <p className="text-emerald-400 font-bold tracking-wide">İndirim Doğrulanıyor...</p>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => setIsScanning(false)}
+                      disabled={loadingScan}
+                      className="mt-6 w-full bg-[#060b11] hover:bg-white/5 border border-white/5 text-slate-300 font-bold py-3.5 rounded-xl transition-all disabled:opacity-50"
+                    >
+                      İptal Et
+                    </button>
                   </div>
                 </div>
-                <p className="text-[10px] text-slate-500 mb-4 font-medium">Onay Kodu: <span className="font-mono text-slate-700 bg-slate-100 px-1 py-0.5 rounded">{result.verificationCode}</span></p>
-                <div className="flex flex-col gap-2">
-                  <button
-                    onClick={handleCompleteTransaction}
-                    disabled={loadingScan}
-                    className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-green-600/20 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
-                  >
-                    <CheckCircle2 size={16} />
-                    {loadingScan ? 'Onaylanıyor...' : 'Ödeme Alındı / İşlemi Tamamla'}
-                  </button>
-                  <button
-                    onClick={resetScanner}
-                    disabled={loadingScan}
-                    className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-3 rounded-xl transition-colors text-sm disabled:opacity-50"
-                  >
-                    İptal Et / İşlemden Vazgeç
-                  </button>
-                </div>
-              </div>
-            ) : isScanning ? (
-              <div className="space-y-4 text-center">
-                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative z-10">
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">Müşteri QR Kodunu Okutun</h3>
-                  <p className="text-xs text-slate-600 mb-6">Fatura Tutarı: <span className="text-green-600 font-bold">{amount} TL</span></p>
+              ) : (
+                <div className="relative z-10">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                      <Receipt size={28} />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-extrabold text-white">Hızlı Ödeme Al</h3>
+                      <p className="text-sm text-slate-400 font-medium mt-1">Öğrenci indirimini anında uygulayın</p>
+                    </div>
+                  </div>
 
                   {error && (
-                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-600 text-xs text-left">
-                      <XCircle size={16} />
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm">
+                      <XCircle size={20} className="shrink-0" />
                       <span>{error}</span>
                     </div>
                   )}
 
-                  <div className={loadingScan ? 'hidden' : 'block'}>
-                    <QRScanner onScanSuccess={handleScanSuccess} />
-                  </div>
-
-                  {loadingScan && (
-                    <div className="py-20 flex flex-col items-center justify-center">
-                      <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                      <p className="text-slate-700 font-medium text-sm">İndirim Doğrulanıyor...</p>
+                  <form onSubmit={startScanning} className="space-y-6">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 mb-3 uppercase tracking-widest">
+                        Ödeme Tutarı (TL)
+                      </label>
+                      <div className="relative group">
+                        <input
+                          type="number"
+                          placeholder="0.00"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          className="w-full bg-[#060b11] border border-white/5 rounded-2xl px-6 py-5 text-4xl sm:text-5xl font-black text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all text-center shadow-inner placeholder:text-slate-700"
+                        />
+                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600 font-bold text-2xl group-focus-within:text-emerald-500/50 transition-colors">₺</span>
+                      </div>
                     </div>
-                  )}
-
-                  <button
-                    onClick={() => setIsScanning(false)}
-                    disabled={loadingScan}
-                    className="mt-6 w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 text-sm"
-                  >
-                    İptal Et
-                  </button>
+                    <button
+                      type="submit"
+                      disabled={!amount}
+                      className="w-full py-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:shadow-none text-white font-extrabold text-lg rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-3"
+                    >
+                      <Store size={24} />
+                      Kamerayı Aç ve QR Oku
+                    </button>
+                  </form>
                 </div>
-              </div>
-            ) : (
-              <>
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-green-50 rounded-full blur-3xl"></div>
-                <div className="flex items-center gap-3 mb-6 relative z-10">
-                  <div className="p-3 bg-green-100 text-green-600 rounded-xl border border-green-200">
-                    <Receipt size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">QR Kod ile Ödeme Al</h3>
-                    <p className="text-xs text-slate-500">Anlık İşlem</p>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-600 text-xs relative z-10">
-                    <XCircle size={16} />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                <form onSubmit={startScanning} className="space-y-6 relative z-10">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-2">
-                      Ödeme Tutarı (TL)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        placeholder="0.00"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-3xl font-bold text-green-600 focus:outline-none focus:border-green-500 transition text-center shadow-inner"
-                      />
-                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xl">₺</span>
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={!amount}
-                    className="w-full py-4 bg-gradient-to-r from-green-600 to-sky-600 hover:from-green-500 hover:to-sky-500 disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 text-white font-bold rounded-xl shadow-md shadow-green-600/30 transition transform active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    <Store size={20} />
-                    Kamerayı Aç ve Öğrenciyi Oku
-                  </button>
-                </form>
-              </>
-            )}
+              )}
+            </div>
           </div>
 
-          {/* Windows Agent Status & Fast Actions */}
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                🖥️ Windows Esnaf Ajanı Durumu
+          {/* Right Column - Status & Requests */}
+          <div className="lg:col-span-5 space-y-6">
+            
+            {/* Windows Agent Status */}
+            <div className="bg-[#0f1923]/60 backdrop-blur-lg p-6 rounded-3xl border border-white/5 shadow-lg">
+              <h2 className="text-lg font-bold text-white flex items-center gap-3 mb-5">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+                  <ShieldCheck size={18} />
+                </div>
+                Windows Ajan Durumu
               </h2>
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-600">Ajan Türü:</span>
-                  <span className="font-semibold text-slate-900">C# .NET 8 WPF / Windows API</span>
+              <div className="p-4 rounded-2xl bg-[#060b11] border border-white/5 space-y-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400 font-medium">Ajan Türü</span>
+                  <span className="font-bold text-white bg-white/5 px-2 py-1 rounded">WPF / WinAPI</span>
                 </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-600">SendKeys Modu:</span>
-                  <span className="font-semibold text-green-600">Otomatik Yazar Kasaya Aktif</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400 font-medium">Kasa Entegrasyonu</span>
+                  <span className="font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Aktif
+                  </span>
                 </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-600">Port / Soket:</span>
-                  <span className="font-mono text-indigo-600">localhost:8080 (Active)</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Transactions */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-              <h3 className="text-sm font-bold text-slate-900">Son Başarılı İşlemler</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                  <div>
-                    <p className="font-semibold text-slate-900">QR Mobil Ödeme</p>
-                    <p className="text-[10px] text-slate-500">10:42 • Müşteri #9421</p>
-                  </div>
-                  <span className="font-bold text-green-600">+ ₺ 120.00</span>
-                </div>
-                <div className="flex justify-between items-center p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                  <div>
-                    <p className="font-semibold text-slate-900">POS / Temassız Transfer</p>
-                    <p className="text-[10px] text-slate-500">09:15 • Müşteri #8812</p>
-                  </div>
-                  <span className="font-bold text-green-600">+ ₺ 450.50</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400 font-medium">Bağlantı</span>
+                  <span className="font-mono text-indigo-400 text-xs bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">localhost:8080</span>
                 </div>
               </div>
             </div>
 
             {/* Talepler */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 mt-6">
-              <h3 className="text-sm font-bold text-slate-900 flex justify-between items-center">
-                Yönetim Talepleri
-                <button onClick={() => setShowRequestModal(true)} className="text-xs bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-lg transition-colors shadow-sm">
-                  Yeni Talep
+            <div className="bg-[#0f1923]/60 backdrop-blur-lg p-6 rounded-3xl border border-white/5 shadow-lg flex-1 flex flex-col min-h-[300px]">
+              <div className="flex justify-between items-center mb-5">
+                <h3 className="text-lg font-bold text-white flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center border border-sky-500/20">
+                    <Store size={18} />
+                  </div>
+                  Taleplerim
+                </h3>
+                <button 
+                  onClick={() => setShowRequestModal(true)} 
+                  className="text-xs font-bold bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/20 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+                >
+                  <Plus size={14} /> Yeni Talep
                 </button>
-              </h3>
-              <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+              </div>
+              
+              <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
                 {requests.length === 0 ? (
-                  <p className="text-xs text-slate-500 text-center py-4">Henüz oluşturulmuş bir talep yok.</p>
+                  <div className="flex flex-col items-center justify-center h-full py-8 text-center">
+                    <div className="w-12 h-12 rounded-full bg-[#060b11] flex items-center justify-center mb-3 border border-white/5">
+                      <ShieldCheck size={20} className="text-slate-600" />
+                    </div>
+                    <p className="text-sm text-slate-400 font-medium">Henüz talep oluşturmadınız.</p>
+                  </div>
                 ) : (
                   requests.map((r, i) => (
-                    <div key={i} className="flex justify-between items-center p-3 rounded-xl bg-slate-50 text-xs border border-slate-200">
+                    <div key={i} className="flex justify-between items-center p-4 rounded-2xl bg-[#060b11] border border-white/5 hover:border-white/10 transition-colors">
                       <div>
-                        <p className="font-semibold text-slate-900">
+                        <p className="font-bold text-white text-sm">
                           {r.type === 'DISCOUNT_UPDATE' ? 'İndirim Güncelleme' : r.type === 'LOCATION_UPDATE' ? 'Adres Güncelleme' : r.type === 'NEW_LOCATION' ? 'Yeni Şube/Konum' : r.type}
                         </p>
-                        <p className="text-[10px] text-slate-500">{new Date(r.createdAt).toLocaleDateString('tr-TR')}</p>
+                        <p className="text-[11px] text-slate-500 mt-1 font-medium">{new Date(r.createdAt).toLocaleDateString('tr-TR')}</p>
                       </div>
-                      <span className={`font-bold px-2 py-1 rounded-md text-[10px] ${r.status === 'PENDING' ? 'text-amber-600 bg-amber-50 border border-amber-200' : r.status === 'APPROVED' ? 'text-green-600 bg-green-50 border border-green-200' : 'text-red-600 bg-red-50 border border-red-200'}`}>
+                      <span className={`font-bold px-2.5 py-1 rounded-lg text-[10px] tracking-wide border ${
+                        r.status === 'PENDING' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 
+                        r.status === 'APPROVED' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 
+                        'text-red-400 bg-red-500/10 border-red-500/20'
+                      }`}>
                         {r.status}
                       </span>
                     </div>
@@ -460,22 +490,35 @@ export default function EsnafPWADashboard() {
                 )}
               </div>
             </div>
+
           </div>
         </div>
       </main>
 
       {/* Yeni Talep Modalı */}
       {showRequestModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg border border-slate-200 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Yeni Talep Oluştur</h3>
-            <form onSubmit={handleCreateRequest} className="space-y-4">
+        <div className="fixed inset-0 z-50 bg-[#060d13]/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0f1923] rounded-3xl p-6 sm:p-8 w-full max-w-xl border border-sky-500/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto relative custom-scrollbar">
+            {/* Modal Glow */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-500 to-indigo-500" />
+            
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Talep Türü</label>
+                <h3 className="text-xl font-extrabold text-white">Yeni Talep Oluştur</h3>
+                <p className="text-sm text-sky-400 mt-1 font-medium">Yönetime iletilecek değişikliği seçin</p>
+              </div>
+              <button onClick={() => setShowRequestModal(false)} className="w-10 h-10 rounded-xl bg-[#060b11] flex items-center justify-center text-slate-400 hover:text-white transition-colors border border-white/5">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateRequest} className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Talep Türü</label>
                 <select 
                   value={reqType} 
                   onChange={e => setReqType(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 text-sm focus:outline-none focus:border-sky-500 shadow-sm"
+                  className="w-full bg-[#060b11] border border-white/5 rounded-xl px-4 py-3.5 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-colors appearance-none"
                 >
                   <option value="DISCOUNT_UPDATE">İndirim Oranı Değişikliği</option>
                   <option value="LOCATION_UPDATE">Mevcut Adres Güncellemesi</option>
@@ -484,30 +527,29 @@ export default function EsnafPWADashboard() {
               </div>
 
               {reqType === 'DISCOUNT_UPDATE' && (
-                <div className="space-y-4">
+                <div className="space-y-5 p-5 bg-[#060b11] rounded-2xl border border-white/5">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Yeni İndirim Oranı (%)</label>
+                    <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Yeni İndirim Oranı (%)</label>
                     <input 
-                      type="number"
-                      required
+                      type="number" required min="1" max="100"
                       value={reqForm.requestedDiscountRate}
                       onChange={e => setReqForm({...reqForm, requestedDiscountRate: e.target.value})}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 text-sm focus:outline-none focus:border-sky-500 shadow-sm"
+                      className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-colors"
                     />
                   </div>
                   <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className="block text-xs font-semibold text-slate-600">Kategori İndirimleri (Opsiyonel)</label>
+                    <div className="flex justify-between items-center mb-3">
+                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">Kategori İndirimleri</label>
                       <button 
                         type="button" 
                         onClick={() => setReqForm({...reqForm, categoryDiscounts: [...reqForm.categoryDiscounts, { categoryName: '', rate: '' }]})}
-                        className="text-[10px] bg-sky-50 text-sky-600 border border-sky-100 px-2 py-1 rounded"
+                        className="text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20 px-3 py-1.5 rounded-lg hover:bg-sky-500/20 transition-colors"
                       >
                         + Kategori Ekle
                       </button>
                     </div>
                     {reqForm.categoryDiscounts.map((cat, idx) => (
-                      <div key={idx} className="flex gap-2 mb-2">
+                      <div key={idx} className="flex gap-3 mb-3 items-center bg-[#0f1923] p-2 rounded-xl border border-white/5">
                         <input 
                           type="text" placeholder="Kategori Adı" value={cat.categoryName}
                           onChange={e => {
@@ -515,8 +557,9 @@ export default function EsnafPWADashboard() {
                             newCats[idx].categoryName = e.target.value;
                             setReqForm({...reqForm, categoryDiscounts: newCats});
                           }}
-                          className="flex-2 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 text-xs w-full shadow-sm"
+                          className="flex-2 bg-transparent border-none px-2 py-1 text-white text-xs w-full focus:outline-none"
                         />
+                        <div className="w-px h-6 bg-white/10 mx-1"></div>
                         <input 
                           type="number" placeholder="%" value={cat.rate}
                           onChange={e => {
@@ -524,27 +567,32 @@ export default function EsnafPWADashboard() {
                             newCats[idx].rate = e.target.value;
                             setReqForm({...reqForm, categoryDiscounts: newCats});
                           }}
-                          className="flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 text-xs w-20 shadow-sm"
+                          className="flex-1 bg-transparent border-none px-2 py-1 text-white text-xs w-20 focus:outline-none text-center"
                         />
                         <button type="button" onClick={() => {
                           const newCats = reqForm.categoryDiscounts.filter((_, i) => i !== idx);
                           setReqForm({...reqForm, categoryDiscounts: newCats});
-                        }} className="text-red-500 px-2 font-bold hover:text-red-700">X</button>
+                        }} className="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500/20 transition-colors shrink-0">
+                          <X size={14} />
+                        </button>
                       </div>
                     ))}
+                    {reqForm.categoryDiscounts.length === 0 && (
+                      <p className="text-[11px] text-slate-500">Kategori bazlı farklı indirimleriniz varsa ekleyebilirsiniz.</p>
+                    )}
                   </div>
                 </div>
               )}
 
               {(reqType === 'LOCATION_UPDATE' || reqType === 'NEW_LOCATION') && (
-                <div className="space-y-3">
+                <div className="space-y-4 p-5 bg-[#060b11] rounded-2xl border border-white/5">
                   {reqType === 'LOCATION_UPDATE' && (
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Şube Seçimi</label>
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Şube Seçimi</label>
                       <select 
                         value={reqForm.targetLocationId} 
                         onChange={e => setReqForm({...reqForm, targetLocationId: e.target.value})}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 text-sm focus:outline-none focus:border-sky-500 shadow-sm"
+                        className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500/50 appearance-none"
                       >
                         <option value="">Merkez Şube / Ana Adres</option>
                         {locations.map(loc => (
@@ -556,34 +604,34 @@ export default function EsnafPWADashboard() {
 
                   {reqType === 'NEW_LOCATION' && (
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Yeni Şube Adı</label>
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Yeni Şube Adı</label>
                       <input 
                         type="text" required placeholder="Örn: Meydan Şubesi"
                         value={reqForm.targetLocationTitle}
                         onChange={e => setReqForm({...reqForm, targetLocationTitle: e.target.value})}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 text-sm focus:outline-none focus:border-sky-500 shadow-sm"
+                        className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500/50 placeholder:text-slate-600"
                       />
                     </div>
                   )}
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] text-slate-500 mb-1">İl</label>
-                      <input type="text" readOnly value={reqForm.city} className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-slate-500 text-xs cursor-not-allowed shadow-inner" />
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">İl</label>
+                      <input type="text" readOnly value={reqForm.city} className="w-full bg-white/5 border border-white/5 rounded-xl px-3 py-2.5 text-slate-400 text-sm cursor-not-allowed" />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-slate-500 mb-1">İlçe</label>
-                      <input type="text" readOnly value={reqForm.district} className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-slate-500 text-xs cursor-not-allowed shadow-inner" />
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">İlçe</label>
+                      <input type="text" readOnly value={reqForm.district} className="w-full bg-white/5 border border-white/5 rounded-xl px-3 py-2.5 text-slate-400 text-sm cursor-not-allowed" />
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] text-slate-500 mb-1">Mahalle</label>
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Mahalle</label>
                       <select 
                         value={reqForm.neighborhood} 
                         onChange={e => setReqForm({...reqForm, neighborhood: e.target.value, street: '', customStreet: ''})} 
-                        className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 text-xs focus:outline-none focus:border-sky-500 shadow-sm"
+                        className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500/50 appearance-none"
                       >
                         <option value="">Seçiniz...</option>
                         {NEIGHBORHOODS.map(mah => (
@@ -592,21 +640,20 @@ export default function EsnafPWADashboard() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] text-slate-500 mb-1">
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">
                         Cadde/Sokak
-                        {!reqForm.neighborhood && <span className="ml-1 text-orange-500">(önce mahalle seçin)</span>}
                       </label>
                       <select 
                         value={reqForm.street} 
                         onChange={e => setReqForm({...reqForm, street: e.target.value})} 
                         disabled={!reqForm.neighborhood}
-                        className={`w-full border rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-sky-500 transition-opacity shadow-sm ${
+                        className={`w-full rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-sky-500/50 transition-all appearance-none ${
                           reqForm.neighborhood
-                            ? 'bg-white border-slate-200 text-slate-900'
-                            : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-60 shadow-none'
+                            ? 'bg-[#0f1923] border border-white/5 text-white'
+                            : 'bg-white/5 border border-white/5 text-slate-500 cursor-not-allowed'
                         }`}
                       >
-                        <option value="">{reqForm.neighborhood ? 'Seçiniz...' : '— Önce mahalle seçin —'}</option>
+                        <option value="">{reqForm.neighborhood ? 'Seçiniz...' : '— Önce mahalle —'}</option>
                         {reqForm.neighborhood && getStreetsByNeighborhood(reqForm.neighborhood).map(s => (
                           <option key={s} value={s}>{s}</option>
                         ))}
@@ -617,7 +664,7 @@ export default function EsnafPWADashboard() {
                           placeholder="Cadde/Sokak adını giriniz..." 
                           value={reqForm.customStreet}
                           onChange={e => setReqForm({...reqForm, customStreet: e.target.value})}
-                          className="w-full bg-white border border-sky-200 rounded-lg px-2 py-1.5 text-slate-900 text-xs mt-2 focus:outline-none focus:border-sky-500 shadow-sm" 
+                          className="w-full bg-[#0f1923] border border-sky-500/30 rounded-xl px-3 py-2.5 text-white text-sm mt-2 focus:outline-none focus:border-sky-500/50 placeholder:text-slate-600" 
                         />
                       )}
                     </div>
@@ -625,11 +672,11 @@ export default function EsnafPWADashboard() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] text-slate-500 mb-1">Dış Kapı / Bina No</label>
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Bina No</label>
                       <select 
                         value={reqForm.buildingNo} 
                         onChange={e => setReqForm({...reqForm, buildingNo: e.target.value})} 
-                        className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 text-xs focus:outline-none focus:border-sky-500 shadow-sm"
+                        className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500/50 appearance-none"
                       >
                         <option value="">Seçiniz...</option>
                         {Array.from({ length: 100 }, (_, i) => (i + 1).toString()).map(no => (
@@ -638,13 +685,13 @@ export default function EsnafPWADashboard() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] text-slate-500 mb-1">İç Kapı / Daire (Opsiyonel)</label>
+                      <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">İç Kapı</label>
                       <select 
                         value={reqForm.apartmentNo} 
                         onChange={e => setReqForm({...reqForm, apartmentNo: e.target.value})} 
-                        className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 text-xs focus:outline-none focus:border-sky-500 shadow-sm"
+                        className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500/50 appearance-none"
                       >
-                        <option value="">Yok / Boş Bırak</option>
+                        <option value="">Yok / Boş</option>
                         {Array.from({ length: 50 }, (_, i) => (i + 1).toString()).map(no => (
                           <option key={no} value={no}>{no}</option>
                         ))}
@@ -653,19 +700,19 @@ export default function EsnafPWADashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] text-slate-500 mb-1">Tam Adres Metni (Opsiyonel)</label>
+                    <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Tam Adres Metni</label>
                     <textarea 
                       rows={2} placeholder="Sadece yukarıdaki alanlar yetmezse detay yazın..."
                       value={reqForm.fullAddress} onChange={e => setReqForm({...reqForm, fullAddress: e.target.value})}
-                      className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 text-xs shadow-sm focus:outline-none focus:border-sky-500"
+                      className="w-full bg-[#0f1923] border border-white/5 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500/50 placeholder:text-slate-600 resize-none"
                     />
                   </div>
                 </div>
               )}
 
-              <div className="flex gap-3 pt-4 border-t border-slate-200">
-                <button type="button" onClick={() => setShowRequestModal(false)} className="flex-1 py-2.5 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 text-sm font-semibold transition border border-slate-200">İptal</button>
-                <button type="submit" disabled={loadingReq} className="flex-1 py-2.5 rounded-xl text-white bg-sky-600 hover:bg-sky-700 text-sm font-semibold flex items-center justify-center transition shadow-md">
+              <div className="flex gap-3 pt-4">
+                <button type="button" onClick={() => setShowRequestModal(false)} className="flex-1 py-4 rounded-xl text-slate-300 bg-[#060b11] hover:bg-white/5 text-sm font-bold transition-all border border-white/5">İptal</button>
+                <button type="submit" disabled={loadingReq} className="flex-1 py-4 rounded-xl text-white bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-sm font-bold flex items-center justify-center transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)] disabled:opacity-50">
                   {loadingReq ? 'Gönderiliyor...' : 'Talebi İlet'}
                 </button>
               </div>
@@ -676,43 +723,49 @@ export default function EsnafPWADashboard() {
 
       {/* Şube Seçici Modal */}
       {showBranchModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-sm shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-slate-200">
+        <div className="fixed inset-0 z-50 bg-[#060d13]/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+          <div className="bg-[#0f1923] border border-white/10 rounded-3xl w-full max-w-sm shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#0a151f]">
               <div>
-                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <Store size={18} className="text-sky-600" /> Şube Seç
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Store size={18} className="text-sky-400" /> Şube Seç
                 </h2>
-                <p className="text-xs text-slate-500 mt-0.5">İşlem yapacağınız şubeyi seçin</p>
+                <p className="text-xs text-slate-400 mt-1 font-medium">İşlem yapacağınız şubeyi seçin</p>
               </div>
-              <button onClick={() => setShowBranchModal(false)} className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition">✕</button>
+              <button onClick={() => setShowBranchModal(false)} className="w-8 h-8 rounded-xl bg-[#060b11] flex items-center justify-center text-slate-400 hover:text-white border border-white/5 transition-colors">
+                <X size={16} />
+              </button>
             </div>
 
-            <div className="p-4 space-y-2 max-h-72 overflow-y-auto">
+            <div className="p-4 space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
               {locations.length === 0 ? (
-                <p className="text-center text-slate-500 py-8 text-sm">Kayıtlı şube bulunamadı.</p>
+                <p className="text-center text-slate-500 py-8 text-sm font-medium">Kayıtlı şube bulunamadı.</p>
               ) : (
                 locations.map((loc: any) => (
                   <button
                     key={loc.id}
                     onClick={() => { setActiveBranch(loc); setShowBranchModal(false); }}
-                    className={`w-full text-left px-4 py-3 rounded-xl border transition-all shadow-sm ${
+                    className={`w-full text-left px-5 py-4 rounded-2xl border transition-all ${
                       activeBranch?.id === loc.id
-                        ? 'bg-sky-50 border-sky-200 text-sky-800'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                        ? 'bg-sky-500/10 border-sky-500/30 shadow-[0_0_15px_rgba(14,165,233,0.1)]'
+                        : 'bg-[#060b11] border-white/5 hover:border-white/10'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-sm">{loc.title}</p>
-                        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{loc.address}</p>
+                      <div className="pr-2">
+                        <p className={`font-bold text-sm ${activeBranch?.id === loc.id ? 'text-sky-400' : 'text-white'}`}>{loc.title}</p>
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-1 flex items-center gap-1">
+                          <MapPin size={10} /> {loc.address}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-2 ml-2 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         {loc.isMain && (
-                          <span className="text-[10px] px-2 py-0.5 bg-sky-50 text-sky-600 border border-sky-200 rounded-full font-bold shadow-sm">Merkez</span>
+                          <span className="text-[9px] font-extrabold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md tracking-wider">MERKEZ</span>
                         )}
                         {activeBranch?.id === loc.id && (
-                          <span className="text-sky-600 text-lg font-bold">✓</span>
+                          <div className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center border border-sky-500/30">
+                            <CheckCircle2 size={14} />
+                          </div>
                         )}
                       </div>
                     </div>
@@ -721,12 +774,12 @@ export default function EsnafPWADashboard() {
               )}
             </div>
 
-            <div className="p-4 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+            <div className="p-5 border-t border-white/5 bg-[#0a151f]">
               <button
                 onClick={() => { setShowRequestModal(true); setShowBranchModal(false); }}
-                className="w-full py-2.5 rounded-xl text-sm font-semibold text-sky-700 bg-sky-50 border border-sky-200 hover:bg-sky-100 transition flex items-center justify-center gap-2 shadow-sm"
+                className="w-full py-3.5 rounded-xl text-sm font-bold text-sky-400 bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 transition-colors flex items-center justify-center gap-2"
               >
-                + Yeni Şube Ekle / Güncelleme Talep Et
+                <Plus size={16} /> Yeni Şube / Güncelleme Talebi
               </button>
             </div>
           </div>
