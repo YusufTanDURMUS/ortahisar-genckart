@@ -373,7 +373,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* 3. Kayıtlı Öğrenci */}
+          {/* 3. Kayıtlı Gençler */}
           <div className="bg-white/90 backdrop-blur-md rounded-2xl p-5 border border-emerald-100 shadow-md shadow-emerald-500/5 hover:border-emerald-300 transition-all flex items-center gap-4 group">
             <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform flex-shrink-0">
               <Users size={22} />
@@ -381,7 +381,7 @@ export default function AdminDashboardPage() {
             <div>
               <p className="text-2xl font-black text-slate-900 leading-none mb-1">{stats?.totalStudents ?? 0}</p>
               <p className="text-xs text-slate-500 font-bold">Genç Kart Sahibi</p>
-              <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">KTÜ & Lise Öğrencileri</p>
+              <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">15-25 Yaş Gençler</p>
             </div>
           </div>
 

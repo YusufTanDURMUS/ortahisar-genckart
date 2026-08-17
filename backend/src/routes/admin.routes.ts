@@ -205,24 +205,44 @@ router.delete('/merchants/:id', async (req: Request, res: Response) => {
 });
 
 // ──────────────────────────────────────────────
-// 4. Bekleyen İndirim Oranı Taleplerini Listele
+// 4. Bekleyen Esnaf Taleplerini Listele
 // GET /api/v1/admin/discount-requests
 // ──────────────────────────────────────────────
 router.get('/discount-requests', async (req: Request, res: Response) => {
   try {
-    const requests = await prisma.discountRequest.findMany({
+    const requests = await prisma.merchantRequest.findMany({
       where: { status: 'PENDING' },
       include: { merchant: true },
       orderBy: { createdAt: 'desc' }
     });
-    res.json({ status: 'SUCCESS', data: requests });
+
+    const formatted = requests.map((r) => ({
+      id: r.id,
+      merchantId: r.merchantId,
+      type: r.type,
+      currentRate: r.merchant.defaultDiscountRate,
+      requestedRate: r.requestedDiscountRate || r.merchant.defaultDiscountRate,
+      targetLocationTitle: r.targetLocationTitle,
+      fullAddress: r.fullAddress,
+      symbol: r.symbol,
+      status: r.status,
+      adminNote: r.rejectionReason,
+      createdAt: r.createdAt,
+      merchant: {
+        id: r.merchant.id,
+        businessName: r.merchant.businessName,
+        category: r.merchant.category
+      }
+    }));
+
+    res.json({ status: 'SUCCESS', data: formatted });
   } catch (error: any) {
     res.status(500).json({ status: 'ERROR', message: error.message });
   }
 });
 
 // ──────────────────────────────────────────────
-// 5. İndirim Talebini Onayla veya Reddet
+// 5. Esnaf Talebini Onayla veya Reddet
 // POST /api/v1/admin/discount-requests/:id/review
 // ──────────────────────────────────────────────
 router.post('/discount-requests/:id/review', async (req: Request, res: Response) => {
@@ -237,7 +257,11 @@ router.post('/discount-requests/:id/review', async (req: Request, res: Response)
       });
     }
 
-    const request = await prisma.discountRequest.findUnique({ where: { id } });
+    const request = await prisma.merchantRequest.findUnique({
+      where: { id },
+      include: { merchant: true }
+    });
+
     if (!request) {
       return res.status(404).json({ status: 'ERROR', message: 'Talep bulunamadı.' });
     }
@@ -250,20 +274,42 @@ router.post('/discount-requests/:id/review', async (req: Request, res: Response)
     }
 
     // Talebi güncelle
-    const updatedRequest = await prisma.discountRequest.update({
+    const updatedRequest = await prisma.merchantRequest.update({
       where: { id },
       data: {
         status: action,
-        adminNote: adminNote || null
+        rejectionReason: adminNote || null
       }
     });
 
-    // Eğer onaylandıysa, esnafın ana indirim oranını güncelle
+    // Eğer onaylandıysa ve tipine göre işlem yap
     if (action === 'APPROVED') {
-      await prisma.merchantProfile.update({
-        where: { id: request.merchantId },
-        data: { defaultDiscountRate: request.requestedRate }
-      });
+      if (request.type === 'DISCOUNT_UPDATE' && request.requestedDiscountRate) {
+        await prisma.merchantProfile.update({
+          where: { id: request.merchantId },
+          data: { defaultDiscountRate: request.requestedDiscountRate }
+        });
+      } else if (request.type === 'NEW_LOCATION' && request.fullAddress) {
+        await prisma.storeLocation.create({
+          data: {
+            merchantId: request.merchantId,
+            title: request.targetLocationTitle || `${request.merchant.businessName} (Şube)`,
+            address: request.fullAddress,
+            symbol: request.symbol || null,
+            latitude: request.latitude,
+            longitude: request.longitude,
+            isMain: false
+          }
+        });
+      } else if (request.type === 'LOCATION_UPDATE' && request.targetLocationId && request.fullAddress) {
+        await prisma.storeLocation.update({
+          where: { id: request.targetLocationId },
+          data: {
+            address: request.fullAddress,
+            symbol: request.symbol || undefined
+          }
+        });
+      }
     }
 
     res.json({ status: 'SUCCESS', data: updatedRequest });
@@ -285,7 +331,7 @@ router.get('/stats', async (req: Request, res: Response) => {
       totalStudents
     ] = await Promise.all([
       prisma.merchantProfile.count(),
-      prisma.discountRequest.count({ where: { status: 'PENDING' } }),
+      prisma.merchantRequest.count({ where: { status: 'PENDING' } }),
       prisma.transaction.count(),
       prisma.studentProfile.count()
     ]);
