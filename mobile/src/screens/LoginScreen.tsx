@@ -98,8 +98,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             </View>
           </View>
 
-          <Text style={styles.badgeText}>ORTAHİSAR BELEDİYESİ</Text>
-          <Text style={styles.cardTitle}>Genç Kart Girişi</Text>
+          <Text style={styles.badgeText}>TRABZON ORTAHİSAR BELEDİYESİ</Text>
+          <Text style={styles.cardTitle}>Genç Kart Portalı</Text>
+          <Text style={styles.subtitle}>
+            Boztepe’den Ganita’ya Gençliğin Şehri Trabzon
+          </Text>
 
           {error ? (
             <View style={styles.errorBox}>
@@ -114,7 +117,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               <TextInput
                 style={styles.input}
                 placeholder="11 haneli TC kimlik no"
-                placeholderTextColor="#475569"
+                placeholderTextColor="#94a3b8"
                 value={tcKn}
                 onChangeText={setTcKn}
                 keyboardType="numeric"
@@ -134,7 +137,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               <TextInput
                 style={styles.input}
                 placeholder="••••••••"
-                placeholderTextColor="#475569"
+                placeholderTextColor="#94a3b8"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -157,18 +160,18 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             activeOpacity={0.85}
           >
             <Text style={styles.loginBtnText}>
-              {loading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
+              {loading ? 'Giriş Yapılıyor...' : 'Genç Kart’a Giriş Yap'}
             </Text>
           </TouchableOpacity>
 
           <View style={styles.statusRow}>
             <View style={styles.statusDot} />
-            <Text style={styles.statusText}>Sistem Aktif · v2.1</Text>
+            <Text style={styles.statusText}>Gençlik Hizmetleri · v2.2</Text>
           </View>
         </View>
 
         <Text style={styles.footer}>
-          © 2026 Trabzon Ortahisar Belediyesi
+          © 2026 Trabzon Ortahisar Belediyesi · Akıllı Şehir
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -176,46 +179,47 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#060d13' },
+  container: { flex: 1, backgroundColor: '#f0f9ff' },
   scrollContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 40, paddingHorizontal: 16 },
 
-  glowOrbTop: { position: 'absolute', top: -80, left: -60, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(6, 182, 212, 0.12)' },
-  glowOrbBottom: { position: 'absolute', bottom: -80, right: -60, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(20, 184, 166, 0.12)' },
+  glowOrbTop: { position: 'absolute', top: -80, left: -60, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(56, 189, 248, 0.25)' },
+  glowOrbBottom: { position: 'absolute', bottom: -80, right: -60, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(20, 184, 166, 0.2)' },
 
   // Card
-  card: { width: '100%', maxWidth: 380, backgroundColor: 'rgba(14, 23, 32, 0.95)', borderRadius: 28, padding: 26, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)', shadowColor: '#06b6d4', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 10, alignItems: 'center' },
+  card: { width: '100%', maxWidth: 380, backgroundColor: '#ffffff', borderRadius: 28, padding: 26, borderWidth: 1, borderColor: '#e0f2fe', shadowColor: '#0284c7', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 24, elevation: 6, alignItems: 'center' },
 
   // Logo
-  logoWrapper: { position: 'relative', marginBottom: 16, alignItems: 'center', justifyContent: 'center' },
-  logoGlow: { position: 'absolute', width: 110, height: 110, borderRadius: 55, backgroundColor: 'rgba(34, 211, 238, 0.4)', shadowColor: '#22d3ee', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.9, shadowRadius: 24, elevation: 14 },
-  logoContainer: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ffffff', padding: 2, borderWidth: 2, borderColor: 'rgba(34, 211, 238, 0.9)', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6 },
+  logoWrapper: { position: 'relative', marginBottom: 14, alignItems: 'center', justifyContent: 'center' },
+  logoGlow: { position: 'absolute', width: 104, height: 104, borderRadius: 52, backgroundColor: 'rgba(56, 189, 248, 0.25)' },
+  logoContainer: { width: 92, height: 92, borderRadius: 46, backgroundColor: '#ffffff', padding: 2, borderWidth: 2, borderColor: '#38bdf8', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 6, elevation: 4 },
   logoImage: { width: '100%', height: '100%' },
 
-  badgeText: { color: '#22d3ee', fontSize: 10, fontWeight: '800', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 4 },
-  cardTitle: { fontSize: 18, fontWeight: '900', color: '#ffffff', marginBottom: 20, textAlign: 'center' },
+  badgeText: { color: '#0369a1', fontSize: 10, fontWeight: '800', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 2 },
+  cardTitle: { fontSize: 20, fontWeight: '900', color: '#0f172a', marginBottom: 4, textAlign: 'center' },
+  subtitle: { fontSize: 11, fontWeight: '600', color: '#64748b', marginBottom: 18, textAlign: 'center' },
 
   // Error
-  errorBox: { width: '100%', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.25)', borderRadius: 12, padding: 10, marginBottom: 14 },
-  errorText: { color: '#f87171', fontSize: 12, fontWeight: '600', textAlign: 'center' },
+  errorBox: { width: '100%', backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fecaca', borderRadius: 12, padding: 10, marginBottom: 14 },
+  errorText: { color: '#dc2626', fontSize: 12, fontWeight: '600', textAlign: 'center' },
 
   // Inputs
   inputGroup: { width: '100%', marginBottom: 14 },
-  label: { fontSize: 9, fontWeight: '800', color: '#94a3b8', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 6 },
+  label: { fontSize: 9, fontWeight: '800', color: '#475569', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6 },
   inputWrapper: { position: 'relative', width: '100%', justifyContent: 'center' },
-  input: { width: '100%', backgroundColor: '#070d14', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, color: '#ffffff', fontWeight: '500' },
-  checkIcon: { position: 'absolute', right: 14, color: '#34d399', fontSize: 15, fontWeight: 'bold' },
+  input: { width: '100%', backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, color: '#0f172a', fontWeight: '500' },
+  checkIcon: { position: 'absolute', right: 14, color: '#10b981', fontSize: 15, fontWeight: 'bold' },
   eyeBtn: { position: 'absolute', right: 12, paddingHorizontal: 6, paddingVertical: 4 },
-  eyeText: { color: '#38bdf8', fontSize: 11, fontWeight: '700' },
+  eyeText: { color: '#0284c7', fontSize: 11, fontWeight: '700' },
 
   // Button
-  loginBtn: { width: '100%', backgroundColor: '#0284c7', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 10, shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 10, elevation: 6 },
+  loginBtn: { width: '100%', backgroundColor: '#0284c7', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 10, shadowColor: '#0ea5e9', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 5 },
   loginBtnDisabled: { opacity: 0.6 },
   loginBtnText: { color: '#ffffff', fontSize: 15, fontWeight: '800', letterSpacing: 0.5 },
 
   // Status
   statusRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 18, gap: 6 },
-  statusDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#34d399' },
+  statusDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10b981' },
   statusText: { fontSize: 11, color: '#64748b', fontWeight: '600' },
 
-  footer: { marginTop: 24, fontSize: 11, color: '#475569', textAlign: 'center' },
+  footer: { marginTop: 24, fontSize: 11, color: '#64748b', textAlign: 'center' },
 });

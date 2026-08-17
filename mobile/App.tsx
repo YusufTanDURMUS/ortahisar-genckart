@@ -53,7 +53,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f0f9ff" />
       {token && userData ? (
         <NavigationContainer>
           <AppNavigator user={userData} onLogout={handleLogout} />
@@ -66,7 +66,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#060d13' },
-  loadingContainer: { flex: 1, backgroundColor: '#060d13', justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: '#f0f9ff' },
+  loadingContainer: { flex: 1, backgroundColor: '#f0f9ff', justifyContent: 'center', alignItems: 'center' },
 });
 

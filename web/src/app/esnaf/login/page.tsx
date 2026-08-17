@@ -2,20 +2,21 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { KeyRound, AlertCircle, User, CheckCircle2, Lock } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Store, Lock, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 export default function EsnafLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('esnaf@copycenter.com');
+  const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
 
     try {
       const res = await fetch('http://localhost:3000/api/v1/auth/merchant-login', {
@@ -26,94 +27,106 @@ export default function EsnafLoginPage() {
 
       const data = await res.json();
 
-      if (data.status === 'SUCCESS') {
-        localStorage.setItem('merchant_token', data.data.token);
-        localStorage.setItem('merchant_info', JSON.stringify(data.data.merchant));
-        document.cookie = `token=${data.data.token}; path=/; max-age=604800; samesite=strict`;
-        document.cookie = `user_role=MERCHANT; path=/; max-age=604800; samesite=strict`;
-        window.location.href = '/esnaf';
+      if (res.ok && data.status === 'SUCCESS') {
+        const token = data.data.token;
+        const merchant = data.data.merchant;
+        localStorage.setItem('merchant_token', token);
+        localStorage.setItem('merchant_profile', JSON.stringify(merchant));
+        document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `user_role=MERCHANT; path=/; max-age=86400; SameSite=Lax`;
+        router.push('/esnaf');
       } else {
-        setError(data.message || 'Giriş bilgileri hatalı.');
+        setError(data.message || 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.');
       }
-    } catch (err) {
-      setError('Backend API sunucusuna bağlanılamadı.');
+    } catch (err: any) {
+      setError('Sunucuya bağlanılamadı. Lütfen API servisinin çalıştığından emin olun.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-[#060d13] flex items-center justify-center p-4 overflow-hidden font-sans">
-      {/* Background glow effects */}
-      <div className="absolute top-1/4 left-[-10%] w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-[-10%] w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b0a_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0a_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-[#f0fdf4] via-[#e0f2fe]/60 to-[#ffffff] text-slate-800 flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      {/* Background glow orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-teal-200/50 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-sky-200/60 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="relative w-full max-w-[420px] z-10">
-        {/* Login Card */}
-        <div className="bg-[#0e1720]/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-[0_12px_40px_rgba(0,0,0,0.6)]">
-          
-          {/* Logo with Glow */}
-          <div className="flex flex-col items-center mb-7">
-            <div className="relative group mb-3">
-              <div className="absolute -inset-3 bg-teal-400/35 rounded-full blur-xl animate-pulse" />
-              <div className="relative w-32 h-32 rounded-full bg-white p-1 border-2 border-teal-400 shadow-[0_0_35px_rgba(45,212,191,0.4)] flex items-center justify-center overflow-hidden">
+      {/* Main Container */}
+      <div className="w-full max-w-md relative z-10">
+        
+        {/* Back Link */}
+        <div className="mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 hover:text-teal-900 transition-colors bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-teal-100 shadow-sm"
+          >
+            <ArrowLeft size={14} />
+            Ana Sayfaya Dön
+          </Link>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white/90 backdrop-blur-2xl rounded-3xl p-7 sm:p-8 border border-teal-100 shadow-2xl shadow-teal-500/10 relative overflow-hidden">
+          {/* Top accent gradient line */}
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-teal-400 via-emerald-500 to-sky-500" />
+
+          {/* Logo & Header */}
+          <div className="text-center mb-6">
+            <div className="relative inline-block mb-3">
+              <div className="w-20 h-20 rounded-full bg-white p-1 border-2 border-teal-400 flex items-center justify-center mx-auto shadow-md">
                 <Image
                   src="/logo.png"
                   alt="Ortahisar Belediyesi"
-                  width={130}
-                  height={130}
+                  width={76}
+                  height={76}
                   className="w-full h-full object-contain rounded-full"
                   priority
                 />
               </div>
             </div>
-            <h2 className="text-[11px] font-bold text-teal-400 tracking-[0.25em] uppercase mt-1">
-              Ortahisar Belediyesi
-            </h2>
-            <h1 className="text-xl font-extrabold text-white tracking-tight mt-0.5">
-              Esnaf Giriş Paneli
+
+            <h1 className="text-xl font-black text-slate-900 tracking-tight">
+              ESNAF PORTALI
             </h1>
+            <p className="text-xs font-bold text-teal-600 tracking-wide uppercase mt-0.5">
+              Ortahisar Belediyesi Anlaşmalı İşletmeler
+            </p>
           </div>
 
+          {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-xs">
-              <AlertCircle size={16} className="flex-shrink-0" />
-              <span>{error}</span>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl text-center font-semibold">
+              {error}
             </div>
           )}
 
+          {/* Form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">
-                Kurumsal E-Posta
+              <label className="block text-[11px] font-bold text-slate-600 mb-1.5 uppercase tracking-wider">
+                İşletme E-Posta
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                  <User size={16} />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-teal-500">
+                  <Mail size={16} />
                 </div>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="esnaf@ortahisar.bel.tr"
-                  className="w-full bg-[#070d14] border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-200 text-sm placeholder:text-slate-600 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/50 transition-all shadow-inner"
+                  className="w-full bg-[#f8fafc] border border-teal-100 rounded-xl pl-10 pr-4 py-3 text-slate-800 text-xs font-medium focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all placeholder:text-slate-400"
+                  placeholder="esnaf@isletme.com"
                 />
-                {email.length > 3 && (
-                  <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-emerald-400">
-                    <CheckCircle2 size={16} />
-                  </div>
-                )}
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">
+              <label className="block text-[11px] font-bold text-slate-600 mb-1.5 uppercase tracking-wider">
                 Şifre
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-teal-500">
                   <Lock size={16} />
                 </div>
                 <input
@@ -121,47 +134,34 @@ export default function EsnafLoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[#f8fafc] border border-teal-100 rounded-xl pl-10 pr-4 py-3 text-slate-800 text-xs font-medium focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all placeholder:text-slate-400"
                   placeholder="••••••••"
-                  className="w-full bg-[#070d14] border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-200 text-sm placeholder:text-slate-600 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/50 transition-all shadow-inner"
                 />
-                {password.length >= 6 && (
-                  <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-emerald-400">
-                    <CheckCircle2 size={16} />
-                  </div>
-                )}
-              </div>
-              <div className="flex justify-end mt-1.5">
-                <a href="#" className="text-[11px] text-teal-400/80 hover:text-teal-300 transition-colors">
-                  Şifremi Unuttum
-                </a>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-500 hover:to-cyan-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] flex items-center justify-center gap-2 mt-4 active:scale-[0.98] disabled:opacity-60 text-sm"
+              className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-extrabold py-3.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-md shadow-teal-500/25 flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
             >
               {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
                 <>
-                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Giriş Yapılıyor...
+                  <Store size={16} />
+                  İşletme Girişi Yap
                 </>
-              ) : 'Giriş Yap'}
+              )}
             </button>
           </form>
 
-          {/* Status footer */}
-          <div className="mt-6 pt-4 border-t border-white/5 text-center flex items-center justify-center gap-3 text-[11px] text-slate-500">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Sistem Aktif
-            </span>
-            <span>•</span>
-            <span>v2.1</span>
+          {/* Quick Demo Info */}
+          <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+            <div className="inline-flex items-center gap-1.5 text-[11px] text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-100 font-semibold">
+              <CheckCircle2 size={13} className="text-teal-500" />
+              Test Hesabı: esnaf@copycenter.com / admin123
+            </div>
           </div>
         </div>
       </div>

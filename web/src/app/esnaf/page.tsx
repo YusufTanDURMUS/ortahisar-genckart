@@ -207,16 +207,18 @@ export default function EsnafPWADashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060d13] text-slate-200 font-sans flex flex-col relative overflow-x-hidden">
-      {/* Background glow */}
-      <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-[160px] pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-b from-[#f0fdf4] via-[#f0f9ff] to-[#ffffff] text-slate-800 font-sans flex flex-col relative overflow-x-hidden">
+      {/* Background glow orbs */}
+      <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-teal-200/40 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[30%] right-[-5%] w-[600px] h-[600px] bg-sky-200/40 rounded-full blur-[140px] pointer-events-none" />
 
-      {/* Header */}
-      <header className="bg-[#0b131c]/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-30 px-6 py-3.5 shadow-lg flex justify-between items-center">
+      {/* ── NAVBAR ── */}
+      <header className="bg-white/85 backdrop-blur-xl border-b border-teal-100 sticky top-0 z-30 px-6 py-3.5 shadow-sm flex items-center justify-between">
+        
+        {/* Logo & Title */}
         <div className="flex items-center gap-3.5">
           <div className="relative group flex-shrink-0">
-            <div className="absolute -inset-1 bg-teal-400/30 rounded-full blur-sm" />
-            <div className="relative w-12 h-12 rounded-full bg-white p-0.5 border border-teal-400/80 flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(20,184,166,0.3)]">
+            <div className="w-12 h-12 rounded-full bg-white p-0.5 border-2 border-teal-400 flex items-center justify-center overflow-hidden shadow-md">
               <img
                 src="/logo.png"
                 alt="Ortahisar Belediyesi"
@@ -225,10 +227,10 @@ export default function EsnafPWADashboard() {
             </div>
           </div>
           <div>
-            <h1 className="text-sm sm:text-base font-extrabold text-white tracking-tight">
-              Ortahisar Belediyesi
+            <h1 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+              TRABZON ORTAHİSAR BELEDİYESİ
             </h1>
-            <p className="text-[11px] text-teal-400 font-medium">
+            <p className="text-[11px] text-teal-600 font-bold tracking-wide uppercase">
               Esnaf QR & Satış Portalı
             </p>
           </div>
@@ -238,7 +240,7 @@ export default function EsnafPWADashboard() {
           {activeBranch && (
             <button
               onClick={() => setShowBranchModal(true)}
-              className="px-3 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold flex items-center gap-1.5 hover:bg-cyan-500/20 transition-all"
+              className="px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 text-xs font-bold flex items-center gap-1.5 hover:bg-teal-100 transition-all shadow-sm"
               title="Aktif Şubeyi Değiştir"
             >
               <Store size={14} />
@@ -246,8 +248,8 @@ export default function EsnafPWADashboard() {
               <span className="sm:hidden">Şube</span>
             </button>
           )}
-          <span className="hidden sm:flex px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold tracking-wider items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="hidden sm:flex px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold tracking-wider items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             SİSTEM AKTİF
           </span>
           <button 
@@ -258,7 +260,7 @@ export default function EsnafPWADashboard() {
               document.cookie = 'user_role=; Max-Age=0; path=/';
               window.location.href = '/';
             }}
-            className="flex items-center gap-2 px-3.5 py-1.5 bg-[#0e1720] hover:bg-red-500/10 text-slate-400 hover:text-red-400 rounded-xl text-xs font-bold transition-all border border-white/5 hover:border-red-500/20"
+            className="flex items-center gap-2 px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-all border border-red-200 shadow-sm"
             title="Çıkış Yap"
           >
             <LogOut size={14} />

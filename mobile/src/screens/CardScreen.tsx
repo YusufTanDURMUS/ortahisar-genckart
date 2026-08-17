@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Barcode from 'react-native-barcode-svg';
 import * as Brightness from 'expo-brightness';
@@ -11,6 +11,7 @@ interface CardScreenProps {
     firstName: string;
     lastName: string;
     tcKn: string;
+    schoolName?: string;
     isEligible?: boolean;
     statusReason?: string;
     revokedNote?: string;
@@ -32,7 +33,6 @@ export const CardScreen: React.FC<CardScreenProps> = ({ user }) => {
         const { status } = await Brightness.requestPermissionsAsync();
         if (status === 'granted') {
           initialBrightness = await Brightness.getBrightnessAsync();
-          // Ekran parlaklığını maksimuma çıkar (Kamera kolay okusun)
           await Brightness.setBrightnessAsync(1.0);
         }
       } catch (err) {
@@ -40,7 +40,6 @@ export const CardScreen: React.FC<CardScreenProps> = ({ user }) => {
       }
     })();
 
-    // Kullanıcı bu ekrandan çıkınca parlaklığı eski haline döndür
     return () => {
       Brightness.setBrightnessAsync(initialBrightness).catch(() => {});
     };
@@ -87,16 +86,24 @@ export const CardScreen: React.FC<CardScreenProps> = ({ user }) => {
 
   return (
     <View style={styles.container}>
-      {/* Background glowing orbs simulation */}
-      <View style={styles.glowOrbTop} />
-      <View style={styles.glowOrbBottom} />
-
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerBadge}>ORTAHİSAR BELEDİYESİ</Text>
+        <View style={styles.logoBadge}>
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logoImg}
+            resizeMode="contain"
+          />
+        </View>
+        <Text style={styles.headerBadge}>TRABZON ORTAHİSAR BELEDİYESİ</Text>
         <Text style={styles.userName}>
           {user.firstName} <Text style={styles.userNameAccent}>{user.lastName}</Text>
         </Text>
-        <Text style={styles.tcKn}>TC: {user.tcKn ? user.tcKn.replace(/(\d{3})\d{5}(\d{3})/, '$1*****$2') : ''}</Text>
+        <View style={styles.tcBadge}>
+          <Text style={styles.tcKn}>
+            TC: {user.tcKn ? user.tcKn.replace(/(\d{3})\d{5}(\d{3})/, '$1*****$2') : ''}
+          </Text>
+        </View>
       </View>
 
       {user.isEligible === false ? (
@@ -115,14 +122,18 @@ export const CardScreen: React.FC<CardScreenProps> = ({ user }) => {
           <View style={styles.toggleContainer}>
             <TouchableOpacity 
               style={[styles.toggleBtn, codeType === 'QR' && styles.activeBtn]}
-              onPress={() => setCodeType('QR')}>
-              <Text style={codeType === 'QR' ? styles.activeText : styles.inactiveText}>QR Kod</Text>
+              onPress={() => setCodeType('QR')}
+              activeOpacity={0.8}
+            >
+              <Text style={codeType === 'QR' ? styles.activeText : styles.inactiveText}>📱 QR Kod</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={[styles.toggleBtn, codeType === 'BARCODE' && styles.activeBtn]}
-              onPress={() => setCodeType('BARCODE')}>
-              <Text style={codeType === 'BARCODE' ? styles.activeText : styles.inactiveText}>Çizgi Barkod</Text>
+              onPress={() => setCodeType('BARCODE')}
+              activeOpacity={0.8}
+            >
+              <Text style={codeType === 'BARCODE' ? styles.activeText : styles.inactiveText}>🏷️ Çizgi Barkod</Text>
             </TouchableOpacity>
           </View>
 
@@ -130,13 +141,13 @@ export const CardScreen: React.FC<CardScreenProps> = ({ user }) => {
           <View style={styles.qrCard}>
             <View style={styles.securityBar}>
               <View style={styles.liveDot} />
-              <Text style={styles.liveTimeText}>CANLI DOĞRULAMA: {currentTime}</Text>
+              <Text style={styles.liveTimeText}>CANLI DOĞRULAMA · {currentTime}</Text>
             </View>
 
             <View style={styles.qrContainer}>
               {qrCodeData ? (
                 codeType === 'QR' ? (
-                  <QRCode value={qrCodeData} size={Dimensions.get('window').width * 0.55} color="#060b11" backgroundColor="#ffffff" />
+                  <QRCode value={qrCodeData} size={Dimensions.get('window').width * 0.52} color="#0f172a" backgroundColor="#ffffff" />
                 ) : (
                   <Barcode 
                     value={user.tcKn ? user.tcKn : "11111111110"} 
@@ -144,7 +155,7 @@ export const CardScreen: React.FC<CardScreenProps> = ({ user }) => {
                     maxWidth={260} 
                     height={90} 
                     singleBarWidth={2}
-                    lineColor="#060b11"
+                    lineColor="#0f172a"
                     backgroundColor="#ffffff"
                   />
                 )
@@ -153,14 +164,19 @@ export const CardScreen: React.FC<CardScreenProps> = ({ user }) => {
 
             <View style={styles.timerContainer}>
               <Text style={styles.timerText}>
-                Yenilenmesine <Text style={styles.secondsText}>{timeLeft}</Text> saniye kaldı
+                Kodun yenilenmesine <Text style={styles.secondsText}>{timeLeft}</Text> saniye kaldı
               </Text>
             </View>
 
-            <TouchableOpacity style={styles.refreshButton} onPress={refreshQR}>
+            <TouchableOpacity style={styles.refreshButton} onPress={refreshQR} activeOpacity={0.8}>
               <Text style={styles.refreshButtonText}>🔄 Şimdi Yenile</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Bottom Info Note */}
+          <Text style={styles.bottomNote}>
+            🌊 Anlaşmalı Ortahisar esnaflarında ödeme yaparken kodu gösteriniz.
+          </Text>
         </>
       )}
     </View>
@@ -168,31 +184,35 @@ export const CardScreen: React.FC<CardScreenProps> = ({ user }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f7ff', padding: 20, justifyContent: 'center' },
-  glowOrbTop: { display: 'none', position: 'absolute', top: 0, left: 0, width: 0, height: 0 },
-  glowOrbBottom: { display: 'none', position: 'absolute', bottom: 0, right: 0, width: 0, height: 0 },
-  header: { marginBottom: 20, alignItems: 'center', zIndex: 1 },
-  headerBadge: { color: '#1a7ec8', fontSize: 13, fontWeight: '800', letterSpacing: 2, marginBottom: 8 },
-  userName: { fontSize: 28, fontWeight: '900', color: '#1e3a5f', marginTop: 4 },
-  userNameAccent: { color: '#1a7ec8' },
-  tcKn: { fontSize: 14, color: '#64748b', marginTop: 8, fontWeight: '500', backgroundColor: '#e8f4fd', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#c2ddf0' },
+  container: { flex: 1, backgroundColor: '#f0f9ff', padding: 20, justifyContent: 'center' },
   
-  toggleContainer: { flexDirection: 'row', backgroundColor: '#ffffff', borderRadius: 16, padding: 4, marginBottom: 24, marginHorizontal: 20, borderWidth: 1, borderColor: '#c2ddf0', zIndex: 1 },
-  toggleBtn: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 12 },
-  activeBtn: { backgroundColor: '#1a7ec8', shadowColor: '#1a7ec8', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 6, elevation: 3 },
-  activeText: { color: '#ffffff', fontWeight: 'bold' },
-  inactiveText: { color: '#94a3b8', fontWeight: 'bold' },
+  header: { marginBottom: 16, alignItems: 'center', zIndex: 1 },
+  logoBadge: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#ffffff', padding: 2, borderWidth: 2, borderColor: '#38bdf8', alignItems: 'center', justifyContent: 'center', marginBottom: 10, shadowColor: '#0284c7', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 4 },
+  logoImg: { width: '100%', height: '100%' },
+  headerBadge: { color: '#0369a1', fontSize: 11, fontWeight: '800', letterSpacing: 1.5, marginBottom: 4 },
+  userName: { fontSize: 24, fontWeight: '900', color: '#0f172a' },
+  userNameAccent: { color: '#0284c7' },
+  tcBadge: { backgroundColor: '#e0f2fe', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#bae6fd', marginTop: 6 },
+  tcKn: { fontSize: 12, color: '#0369a1', fontWeight: '700', fontVariant: ['tabular-nums'] },
+  
+  toggleContainer: { flexDirection: 'row', backgroundColor: '#ffffff', borderRadius: 16, padding: 4, marginBottom: 18, marginHorizontal: 20, borderWidth: 1, borderColor: '#e2e8f0', zIndex: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 },
+  toggleBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 12 },
+  activeBtn: { backgroundColor: '#0284c7', shadowColor: '#0284c7', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 6, elevation: 3 },
+  activeText: { color: '#ffffff', fontWeight: '800', fontSize: 13 },
+  inactiveText: { color: '#64748b', fontWeight: '700', fontSize: 13 },
 
-  qrCard: { backgroundColor: '#ffffff', borderRadius: 28, padding: 24, alignItems: 'center', shadowColor: '#1a7ec8', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 16, elevation: 6, borderWidth: 1, borderColor: '#c2ddf0', zIndex: 1 },
-  securityBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e8f4fd', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, marginBottom: 24, borderWidth: 1, borderColor: '#c2ddf0' },
-  liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#22c55e', marginRight: 8 },
-  liveTimeText: { fontSize: 12, fontWeight: 'bold', color: '#1a7ec8', letterSpacing: 1 },
-  qrContainer: { padding: 16, backgroundColor: '#ffffff', borderRadius: 20, borderWidth: 2, borderColor: '#e8f4fd', shadowColor: '#1a7ec8', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3, minHeight: 120, justifyContent: 'center', alignItems: 'center', width: '100%' },
-  timerContainer: { marginTop: 24 },
-  timerText: { fontSize: 13, color: '#64748b' },
-  secondsText: { fontWeight: 'bold', color: '#1a7ec8' },
-  refreshButton: { marginTop: 16, paddingVertical: 12, paddingHorizontal: 24, backgroundColor: '#e8f4fd', borderRadius: 16, borderWidth: 1.5, borderColor: '#c2ddf0' },
-  refreshButtonText: { color: '#1a7ec8', fontWeight: '700', fontSize: 14 },
+  qrCard: { backgroundColor: '#ffffff', borderRadius: 28, padding: 22, alignItems: 'center', shadowColor: '#0284c7', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 6, borderWidth: 1, borderColor: '#e0f2fe', zIndex: 1 },
+  securityBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0fdf4', paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20, marginBottom: 18, borderWidth: 1, borderColor: '#bbf7d0' },
+  liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#16a34a', marginRight: 8 },
+  liveTimeText: { fontSize: 11, fontWeight: '800', color: '#15803d', letterSpacing: 0.8 },
+  qrContainer: { padding: 14, backgroundColor: '#ffffff', borderRadius: 20, borderWidth: 1.5, borderColor: '#e2e8f0', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2, minHeight: 120, justifyContent: 'center', alignItems: 'center', width: '100%' },
+  timerContainer: { marginTop: 18 },
+  timerText: { fontSize: 12, color: '#64748b', fontWeight: '500' },
+  secondsText: { fontWeight: '800', color: '#0284c7' },
+  refreshButton: { marginTop: 14, paddingVertical: 10, paddingHorizontal: 22, backgroundColor: '#f0f9ff', borderRadius: 14, borderWidth: 1, borderColor: '#bae6fd' },
+  refreshButtonText: { color: '#0369a1', fontWeight: '800', fontSize: 13 },
+
+  bottomNote: { marginTop: 16, fontSize: 11, color: '#64748b', textAlign: 'center', fontWeight: '500' },
 
   disabledContainer: { flex: 1, justifyContent: 'center', paddingHorizontal: 10, marginTop: 20, zIndex: 1 },
   warningBox: { backgroundColor: '#fef2f2', borderColor: '#fecaca', borderWidth: 1, padding: 24, borderRadius: 24, alignItems: 'center' },
@@ -200,4 +220,3 @@ const styles = StyleSheet.create({
   warningReason: { fontSize: 16, color: '#ef4444', textAlign: 'center', fontWeight: '600', marginBottom: 16 },
   warningHelp: { fontSize: 13, color: '#f87171', textAlign: 'center', opacity: 0.9, lineHeight: 18 },
 });
-
