@@ -6,9 +6,9 @@ export function middleware(req: NextRequest) {
   const role = req.cookies.get('user_role')?.value;
   const { pathname } = req.nextUrl;
 
-  // 1. Admin Paneli Koruması (Login hariç)
+  // 1. Admin & Moderatör Paneli Koruması (Login hariç)
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    if (!token || role !== 'ADMIN') {
+    if (!token || (role !== 'ADMIN' && role !== 'MODERATOR')) {
       return NextResponse.redirect(new URL('/admin/login', req.url));
     }
   }
@@ -22,8 +22,8 @@ export function middleware(req: NextRequest) {
 
   // 3. Login Sayfaları Yönlendirmesi (Sadece kendi rolündeki aktif oturumu olanlar paneline yönlendirilsin)
   if (token) {
-    // Admin login'e sadece aktif ADMIN oturumu olan yönlensin
-    if (pathname === '/admin/login' && role === 'ADMIN') {
+    // Admin login'e sadece aktif ADMIN veya MODERATOR oturumu olan yönlensin
+    if (pathname === '/admin/login' && (role === 'ADMIN' || role === 'MODERATOR')) {
       return NextResponse.redirect(new URL('/admin/dashboard', req.url));
     }
     // Esnaf login'e sadece aktif MERCHANT oturumu olan yönlensin

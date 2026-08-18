@@ -29,9 +29,11 @@ export default function AdminLoginPage() {
 
       if (res.ok && data.status === 'SUCCESS') {
         const token = data.data.token;
+        const role = data.data.user?.role || 'ADMIN';
         localStorage.setItem('admin_token', token);
+        localStorage.setItem('admin_role', role);
         document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `user_role=ADMIN; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `user_role=${role}; path=/; max-age=86400; SameSite=Lax`;
         router.push('/admin/dashboard');
       } else {
         setError(data.message || 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.');
@@ -84,10 +86,10 @@ export default function AdminLoginPage() {
             </div>
 
             <h1 className="text-xl font-black text-slate-900 tracking-tight">
-              YÖNETİM GİRİŞİ
+              YÖNETİM & MODERASYON GİRİŞİ
             </h1>
             <p className="text-xs font-bold text-sky-600 tracking-wide uppercase mt-0.5">
-              Ortahisar Belediyesi Genç Kart Portalı
+              Ortahisar Belediyesi Yönetici ve Moderatör Portalı
             </p>
           </div>
 
@@ -102,7 +104,7 @@ export default function AdminLoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-[11px] font-bold text-slate-600 mb-1.5 uppercase tracking-wider">
-                Yönetici E-Posta
+                Yetkili E-Posta
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-sky-500">
@@ -155,10 +157,29 @@ export default function AdminLoginPage() {
           </form>
 
           {/* Quick Demo Info */}
-          <div className="mt-6 pt-4 border-t border-slate-100 text-center">
-            <div className="inline-flex items-center gap-1.5 text-[11px] text-sky-700 bg-sky-50 px-3 py-1 rounded-full border border-sky-100 font-semibold">
-              <CheckCircle2 size={13} className="text-sky-500" />
-              Test Hesabı: admin@ortahisar.bel.tr / admin123
+          <div className="mt-6 pt-4 border-t border-slate-100 space-y-2">
+            <p className="text-[11px] font-bold text-slate-500 text-center uppercase tracking-wider">Hızlı Test Hesapları</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('admin@ortahisar.bel.tr');
+                  setPassword('admin123');
+                }}
+                className="text-[11px] text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 font-bold py-1.5 px-2 rounded-xl transition-all text-center"
+              >
+                👑 Yönetici (ADMIN)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('moderator@ortahisar.bel.tr');
+                  setPassword('admin123');
+                }}
+                className="text-[11px] text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 font-bold py-1.5 px-2 rounded-xl transition-all text-center"
+              >
+                ⚖️ Moderatör (MODERATOR)
+              </button>
             </div>
           </div>
         </div>

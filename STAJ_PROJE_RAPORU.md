@@ -7,7 +7,7 @@
 * **Proje Sahibi Kurum:** Trabzon Ortahisar Belediyesi (Bilgi İşlem / Akıllı Şehir Müdürlüğü)
 * **Proje Adı:** Ortahisar Genç Kart & Akıllı Esnaf İndirim Sistemi (Web, Mobil, Backend, Masaüstü Ajanı)
 * **Geliştirici / Stajyer:** Yusuf Tan DURMUŞ
-* **Proje Versiyonu:** `v2.2.0 (Production-Ready Architecture)`
+* **Proje Versiyonu:** `v2.3.0 (Granular RBAC, Moderator & Dynamic Role Management)`
 * **Kaynak Kod Deposu:** [GitHub - YusufTanDURMUS/ortahisar-genckart](https://github.com/YusufTanDURMUS/ortahisar-genckart)
 * **Tarih:** Ağustos 2026
 
@@ -22,13 +22,15 @@ Geleneksel belediyecilik hizmetlerinde öğrencilere ve gençlere yönelik indir
 3. **Öğrencilik ve İkamet Şartlarının Güncelliğini Yitirmesi:** Mezun olan, yaş sınırını aşan veya ilçeden taşınan kişilerin denetlenememesi.
 4. **Esnaf Cephesinde Entegrasyon Zorluğu:** Yerel esnafların pahalı POS yazılımları veya karmaşık cihazlar satın almadan indirim uygulayamaması.
 5. **Veri ve Şeffaflık Eksikliği:** Belediyenin hangi sektörde ne kadar indirim yapıldığını, gençlere ne kadarlık ekonomik katkı sağlandığını anlık takip edememesi.
+6. **Yetki Katmanlarının ve Moderasyonun Eksikliği:** Belediye personelinin esnaf ekleme ve şube onaylama gibi operasyonel işleri yaparken sistem kritik ayarlarına ve rol yönetimine müdahale edemeyeceği güvenli ara rollere (Moderatör) ihtiyaç duyulması.
 
 ### 1.2. Projenin Hedefleri ve Çözüm Yaklaşımı
 **Ortahisar Genç Kart Projesi**, Trabzon Ortahisar ilçesinde yaşayan veya eğitim gören gençlerin (15–25 yaş) yerel esnaflarla buluşmasını sağlayan, uçtan uca modern bir dijital ekosistemdir.
 
-* **Gençler İçin:** Telefonlarında çalışan, 60 saniyede bir otomatik yenilenen güvenli dinamik QR kodlu dijital kart. Ganita, Boztepe, Kalkınma, KTÜ Kampüsü gibi simge merkezlerdeki anlaşmalı işletmeleri harita ve kategoriyle keşfetme imkanı.
-* **Esnaflar İçin:** Herhangi bir cihaz gerektirmeden ister tarayıcı üzerinden (PWA Satış Terminali) ister Windows masaüstü POS entegrasyon ajanıyla (Keyboard Wedge) anında indirim uygulama ve şube/oran talepleri iletme altyapısı.
-* **Belediye / Admin İçin:** Kayıtlı gençleri, anlaşmalı işletmeleri, mahalle ve cadde bazlı adresleri, esnaf taleplerini ve esnafların sağladığı toplam TL indirim tutarını tek bir kontrol merkezinden denetleme olanağı.
+* **Gençler İçin (`STUDENT`):** Telefonlarında çalışan, 60 saniyede bir otomatik yenilenen güvenli dinamik QR kodlu dijital kart. Ganita, Boztepe, Kalkınma, KTÜ Kampüsü gibi simge merkezlerdeki anlaşmalı işletmeleri harita ve kategoriyle keşfetme imkanı.
+* **Esnaflar İçin (`MERCHANT`):** Herhangi bir cihaz gerektirmeden ister tarayıcı üzerinden (PWA Satış Terminali) ister Windows masaüstü POS entegrasyon ajanıyla (Keyboard Wedge) anında indirim uygulama ve şube/oran talepleri iletme altyapısı.
+* **Belediye Moderatörleri İçin (`MODERATOR`):** Yeni esnaf hesabı oluşturma, esnaflara doğrudan yeni şube/dükkan ekleme ve esnaf onay taleplerini inceleme operasyonel kontrolü.
+* **Belediye Yöneticisi İçin (`ADMIN`):** Tüm sistemi denetleme, esnaf silme ve sistemdeki tüm kullanıcıların rollerini (`STUDENT`, `MERCHANT`, `MODERATOR`, `ADMIN`) dinamik olarak atayıp yönetebilme yetkisi.
 
 ---
 
@@ -66,19 +68,36 @@ Proje, 4 bağımsız ancak birbiriyle tam entegre çalışan katmandan oluşmakt
 ```mermaid
 graph TD
     A[📱 Mobil Uygulama - React Native Expo] -->|JWT Auth & Canlı QR| B[🌐 Backend API - Node.js Express]
-    C[💻 Web Portalı - Next.js 14] -->|Admin & Esnaf Dashboard| B
+    C[💻 Web Portalı - Next.js 14] -->|Admin & Moderatör & Esnaf Dashboard| B
     D[🖥️ Windows Yazar Kasa Ajanı - C# WPF] -->|Keyboard Wedge / API| B
     B -->|Prisma ORM| E[(🗄️ Veritabanı - SQLite / PostgreSQL)]
     B -->|Adaptör Mimarisi| F[🏛️ e-Devlet & Belediye GIS Servisleri]
 ```
 
-### 3.1. Katmanlar ve Kullanılan Teknolojiler
+### 3.1. Rol Tabanlı Yetkilendirme (RBAC) ve Yetki Matrisi
+
+Sistem 4 farklı kullanıcı rolü ile güvenlik altına alınmıştır:
+
+| Yetki & İşlem | `STUDENT` | `MERCHANT` | `MODERATOR` | `ADMIN` |
+| :--- | :---: | :---: | :---: | :---: |
+| Canlı QR Kod Üretme & İndirim Alma | ✅ | ❌ | ❌ | ❌ |
+| Esnaf Portalı & Satış Terminali (`/esnaf`) | ❌ | ✅ | ❌ | ❌ |
+| Yönetim Paneline Erişim (`/admin`) | ❌ | ❌ | ✅ | ✅ |
+| Anlaşmalı Esnaf Listesi & Ciro/Tasarruf İnceleme | ❌ | ❌ | ✅ | ✅ |
+| Yeni Esnaf Hesabı & Şifresi Tanımlama | ❌ | ❌ | ✅ | ✅ |
+| Esnafa Doğrudan Yeni Dükkan / Şube Ekleme | ❌ | ❌ | ✅ | ✅ |
+| Esnaf İndirim & Şube Taleplerini Onaylama/Reddetme | ❌ | ❌ | ✅ | ✅ |
+| Kullanıcı Listesini İnceleme | ❌ | ❌ | ✅ | ✅ |
+| **Kullanıcı Rollerini Değiştirme (`STUDENT`/`MERCHANT`/`MODERATOR`/`ADMIN`)** | ❌ | ❌ | ❌ *(403 Korumalı)* | ✅ *(Özel Yetki)* |
+| **İşletme / Esnaf Kaydını Tamamen Silme** | ❌ | ❌ | ❌ *(403 Korumalı)* | ✅ *(Özel Yetki)* |
+
+### 3.2. Katmanlar ve Kullanılan Teknolojiler
 
 #### 1. Backend Katmanı (`backend/`)
 * **Çalışma Ortamı:** Node.js (v18+) & TypeScript
 * **Web Framework:** Express.js
 * **Veritabanı & ORM:** Prisma ORM (Geliştirmede SQLite `dev.db`, Prodüksiyonda PostgreSQL & PostGIS)
-* **Kimlik Doğrulama:** JWT (JSON Web Token), Bcrypt parola şifreleme, RBAC (Rol Tabanlı Yetkilendirme: `STUDENT`, `MERCHANT`, `ADMIN`)
+* **Kimlik Doğrulama:** JWT (JSON Web Token), Bcrypt parola şifreleme, RBAC (Rol Tabanlı Yetkilendirme: `STUDENT`, `MERCHANT`, `MODERATOR`, `ADMIN`)
 * **Doğrulama & Güvenlik:** 60 saniyelik zaman damgalı TOTP QR hash algoritması, Session tecrit middleware'i.
 
 #### 2. Web Portalı (`web/`)
@@ -86,7 +105,7 @@ graph TD
 * **Stil & Tasarım:** Tailwind CSS, Lucide React İkonları, Cam Efekti (Glassmorphism), Açık Mavi & Doğa Teması (`#f0f9ff`, `#0284c7`, `#38bdf8`)
 * **Rotalar:**
   * `/`: Karşılama Sayfası ve Kültürel Rotalar Vitrini (Ganita, Boztepe, Zağnos, KTÜ)
-  * `/admin/login` & `/admin/dashboard`: Belediye Yönetim Paneli
+  * `/admin/login` & `/admin/dashboard`: Belediye Yönetim & Moderasyon Paneli
   * `/esnaf/login` & `/esnaf`: Esnaf QR Okutma ve Satış Terminali (PWA)
 
 #### 3. Mobil Uygulama (`mobile/`)

@@ -87,8 +87,8 @@ export const adminLoginController = async (req: Request, res: Response) => {
 
     const result = await AuthService.loginWithPassword(email, password);
     
-    if (result.user.role !== 'ADMIN') {
-      return res.status(401).json({ status: 'FAILED', message: 'Yetkisiz giriş.' });
+    if (result.user.role !== 'ADMIN' && result.user.role !== 'MODERATOR') {
+      return res.status(401).json({ status: 'FAILED', message: 'Yetkisiz giriş. Bu portala yalnızca Yönetici ve Moderatör hesapları erişebilir.' });
     }
 
     return res.status(200).json({

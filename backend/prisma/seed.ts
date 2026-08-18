@@ -10,9 +10,9 @@ async function main() {
   const defaultPasswordHash = await bcrypt.hash('admin123', 10);
 
   // ═══════════════════════════════════════════════════════════
-  // 1. SİSTEM YÖNETİCİLERİ (ADMIN)
+  // 1. SİSTEM YÖNETİCİLERİ VE MODERATÖRLER (ADMIN & MODERATOR)
   // ═══════════════════════════════════════════════════════════
-  const adminUsersData = [
+  const privilegedUsersData = [
     {
       email: 'admin@ortahisar.bel.tr',
       phoneNumber: '04623330001',
@@ -25,12 +25,18 @@ async function main() {
       role: 'ADMIN',
       passwordHash: defaultPasswordHash,
     },
+    {
+      email: 'moderator@ortahisar.bel.tr',
+      phoneNumber: '04623330003',
+      role: 'MODERATOR',
+      passwordHash: defaultPasswordHash,
+    },
   ];
 
-  for (const admin of adminUsersData) {
+  for (const user of privilegedUsersData) {
     const existing = await prisma.user.findFirst({
       where: {
-        OR: [{ email: admin.email }, { phoneNumber: admin.phoneNumber }],
+        OR: [{ email: user.email }, { phoneNumber: user.phoneNumber }],
       },
     });
 
@@ -38,17 +44,17 @@ async function main() {
       await prisma.user.update({
         where: { id: existing.id },
         data: {
-          email: admin.email,
-          phoneNumber: admin.phoneNumber,
-          role: 'ADMIN',
-          passwordHash: admin.passwordHash,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          role: user.role,
+          passwordHash: user.passwordHash,
         },
       });
     } else {
-      await prisma.user.create({ data: admin });
+      await prisma.user.create({ data: user });
     }
   }
-  console.log('✅ Admin hesapları oluşturuldu (Şifre: admin123).');
+  console.log('✅ Admin ve Moderatör hesapları oluşturuldu (Şifre: admin123).');
 
   // ═══════════════════════════════════════════════════════════
   // 2. ÖĞRENCİ KULLANICILARI (GENÇ KART)

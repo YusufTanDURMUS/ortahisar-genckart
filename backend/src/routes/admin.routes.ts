@@ -5,8 +5,8 @@ import bcrypt from 'bcryptjs';
 
 const router = Router();
 
-// Sadece ADMIN rollerinin erişebileceği middleware koruması
-router.use(verifyTokenMiddleware(['ADMIN']));
+// ADMIN ve MODERATOR rollerinin erişebileceği genel middleware koruması
+router.use(verifyTokenMiddleware(['ADMIN', 'MODERATOR']));
 
 // ──────────────────────────────────────────────
 // 1. Tüm Esnafları Listele (İşlem & İndirim İstatistikleriyle Birlikte)
@@ -183,11 +183,55 @@ router.post('/merchants', async (req: Request, res: Response) => {
 });
 
 // ──────────────────────────────────────────────
-// 3. Esnaf Sil
+// 3. Esnafa Doğrudan Yeni Şube / Dükkan Ekle (ADMIN & MODERATOR)
+// POST /api/v1/admin/merchants/:id/locations
+// ──────────────────────────────────────────────
+router.post('/merchants/:id/locations', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { title, address, symbol, latitude, longitude } = req.body;
+
+    if (!address) {
+      return res.status(400).json({ status: 'ERROR', message: 'Şube adresi zorunludur.' });
+    }
+
+    const merchant = await prisma.merchantProfile.findUnique({ where: { id } });
+    if (!merchant) {
+      return res.status(404).json({ status: 'ERROR', message: 'Esnaf bulunamadı.' });
+    }
+
+    const newLocation = await prisma.storeLocation.create({
+      data: {
+        merchantId: merchant.id,
+        title: title || `${merchant.businessName} (Şube)`,
+        address,
+        symbol: symbol || null,
+        latitude: latitude ? Number(latitude) : null,
+        longitude: longitude ? Number(longitude) : null,
+        isMain: false,
+      },
+    });
+
+    res.status(201).json({ status: 'SUCCESS', data: newLocation });
+  } catch (error: any) {
+    res.status(400).json({ status: 'FAILED', message: error.message });
+  }
+});
+
+// ──────────────────────────────────────────────
+// 4. Esnaf Sil (Yalnızca ADMIN)
 // DELETE /api/v1/admin/merchants/:id
 // ──────────────────────────────────────────────
 router.delete('/merchants/:id', async (req: Request, res: Response) => {
   try {
+    const currentUser = (req as any).user;
+    if (currentUser?.role !== 'ADMIN') {
+      return res.status(403).json({
+        status: 'FAILED',
+        message: 'Esnaf kaydını tamamen silme yetkisi yalnızca Sistem Yöneticisi (ADMIN) hesabına aittir.',
+      });
+    }
+
     const { id } = req.params;
 
     const merchant = await prisma.merchantProfile.findUnique({ where: { id } });
@@ -383,6 +427,8 @@ router.get('/users', async (req: Request, res: Response) => {
           ? `${u.studentProfile?.firstName || ''} ${u.studentProfile?.lastName || ''}`.trim() || 'İsimsiz Öğrenci'
           : u.role === 'MERCHANT'
           ? u.merchantProfile?.businessName || 'İşletme'
+          : u.role === 'MODERATOR'
+          ? 'Belediye Moderatörü'
           : 'Sistem Yöneticisi',
       tcKn: u.studentProfile?.tcKn || null,
       birthYear: u.studentProfile?.birthYear || null,
@@ -398,6 +444,84 @@ router.get('/users', async (req: Request, res: Response) => {
     }));
 
     res.json({ status: 'SUCCESS', data: formattedUsers });
+  } catch (error: any) {
+    res.status(500).json({ status: 'ERROR', message: error.message });
+  }
+});
+
+// ──────────────────────────────────────────────
+// 8. Kullanıcı Rolünü / Yetkisini Güncelle (Yalnızca ADMIN)
+// PATCH /api/v1/admin/users/:id/role
+// ──────────────────────────────────────────────
+router.patch('/users/:id/role', async (req: Request, res: Response) => {
+  try {
+    const currentUser = (req as any).user;
+    if (currentUser?.role !== 'ADMIN') {
+      return res.status(403).json({
+        status: 'FAILED',
+        message: 'Kullanıcı yetkilerini ve rollerini yalnızca Sistem Yöneticisi (ADMIN) düzenleyebilir.',
+      });
+    }
+
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const validRoles = ['STUDENT', 'MERCHANT', 'MODERATOR', 'ADMIN'];
+    if (!role || !validRoles.includes(role)) {
+      return res.status(400).json({
+        status: 'ERROR',
+        message: `Geçersiz rol. Kabul edilen roller: ${validRoles.join(', ')}`,
+      });
+    }
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id },
+      include: { studentProfile: true, merchantProfile: true },
+    });
+
+    if (!targetUser) {
+      return res.status(404).json({ status: 'ERROR', message: 'Kullanıcı bulunamadı.' });
+    }
+
+    // Role güncelleniyor
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: { role },
+      include: { studentProfile: true, merchantProfile: true },
+    });
+
+    res.json({
+      status: 'SUCCESS',
+      message: `Kullanıcı rolü başarıyla '${role}' olarak güncellendi.`,
+      data: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        phoneNumber: updatedUser.phoneNumber,
+        role: updatedUser.role,
+      },
+    });
+  } catch (error: any) {
+    res.status(400).json({ status: 'FAILED', message: error.message });
+  }
+});
+
+// ──────────────────────────────────────────────
+// 9. Aktif Giriş Yapan Yönetici / Moderatör Bilgisi
+// GET /api/v1/admin/me
+// ──────────────────────────────────────────────
+router.get('/me', async (req: Request, res: Response) => {
+  try {
+    const currentUser = (req as any).user;
+    const user = await prisma.user.findUnique({
+      where: { id: currentUser.userId },
+      select: { id: true, email: true, phoneNumber: true, role: true, createdAt: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ status: 'ERROR', message: 'Kullanıcı bulunamadı.' });
+    }
+
+    res.json({ status: 'SUCCESS', data: user });
   } catch (error: any) {
     res.status(500).json({ status: 'ERROR', message: error.message });
   }

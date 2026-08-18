@@ -9,7 +9,7 @@ datasource db {
 
 // ------------------------------------------------------
 // Kullanıcı Modeli (Ortak Auth Tablosu)
-// Roles: STUDENT | MERCHANT | ADMIN
+// Roles: STUDENT | MERCHANT | MODERATOR | ADMIN
 // ------------------------------------------------------
 
 model User {

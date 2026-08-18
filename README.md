@@ -99,14 +99,28 @@ dotnet run
 
 ---
 
+## 🔑 Tanımlı Test Hesapları ve Roller (RBAC)
+
+| Rol | E-posta / Tanımlayıcı | Şifre | Erişim & Portallar |
+| :--- | :--- | :--- | :--- |
+| 👑 **Yönetici (`ADMIN`)** | `admin@ortahisar.bel.tr` | `admin123` | `http://localhost:3001/admin/login` (Tam Yetki & Rol Yönetimi) |
+| 👑 **Süper Yönetici (`ADMIN`)** | `superadmin@ortahisar.bel.tr` | `admin123` | `http://localhost:3001/admin/login` (Tam Yetki) |
+| ⚖️ **Moderatör (`MODERATOR`)** | `moderator@ortahisar.bel.tr` | `admin123` | `http://localhost:3001/admin/login` (Esnaf/Şube Ekleme & Onaylama) |
+| 🏪 **Esnaf (`MERCHANT`)** | `esnaf@copycenter.com` | `admin123` | `http://localhost:3001/esnaf/login` (Satış Terminali & Talep) |
+| 👨‍🎓 **Öğrenci (`STUDENT`)** | `TC: 11111111110` | `admin123` | Mobil Uygulama (Expo Go) |
+
+---
+
 ## 📁 Proje Klasör Yapısı
 
 ```
 Staj/
-├── backend/          # Node.js (TypeScript + Express) + Prisma ORM
-├── web/              # Next.js + Tailwind CSS (/admin & /esnaf)
-├── mobile/           # React Native (Expo) Kamera & QR scanner
+├── backend/          # Node.js (TypeScript + Express) + Prisma ORM (RBAC: Admin, Moderatör, Esnaf, Öğrenci)
+├── web/              # Next.js 14 + Tailwind CSS (/admin & /esnaf PWA)
+├── mobile/           # React Native (Expo SDK 54) Canlı QR & Barkod & Keşif
 ├── windows-agent/    # C# (.NET 8 WPF) Windows API & SendKeys Ajanı
 ├── docker-compose.yml# PostgreSQL + PostGIS & Redis & PgAdmin
+├── STAJ_PROJE_RAPORU.md # Detaylı Staj & Mimari Raporu
 └── README.md         # İndirme rehberi ve mimari belgelendirme
 ```
+
